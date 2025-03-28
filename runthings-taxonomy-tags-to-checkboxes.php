@@ -47,31 +47,49 @@ class Taxonomy_Tags_To_Checkboxes {
     public function __construct() {
         new Admin_Options();
 
-        add_action( 'add_meta_boxes', [ $this, 'remove_default_taxonomy_metabox' ], 10, 2 );
-        add_action( 'add_meta_boxes', [ $this, 'add_taxonomy_metabox' ] );
-        add_action( 'save_post', [ $this, 'save_taxonomy_metabox' ] );
-    }
+        $selected_taxonomies = get_option( 'runthings_ttc_selected_taxonomies', [] );
 
-    public function remove_default_taxonomy_metabox( $post_type, $post ) {
-        if ( 'lodge' === $post_type ) {
-            remove_meta_box( 'tagsdiv-collection', 'lodge', 'side' );
+        foreach ( $selected_taxonomies as $taxonomy ) {
+            add_action( 'add_meta_boxes', function ( $post_type, $post ) use ( $taxonomy ) {
+                $this->remove_default_taxonomy_metabox( $post_type, $post, $taxonomy );
+            }, 10, 2 );
+
+            add_action( 'add_meta_boxes', function ( $post_type ) use ( $taxonomy ) {
+                $this->add_taxonomy_metabox( $post_type, $taxonomy );
+            });
+
+            add_action( 'save_post', function ( $post_id ) use ( $taxonomy ) {
+                $this->save_taxonomy_metabox( $post_id, $taxonomy );
+            });
         }
     }
 
-    public function add_taxonomy_metabox() {
+    public function remove_default_taxonomy_metabox( $post_type, $post, $taxonomy ) {
+        $taxonomy_object = get_taxonomy( $taxonomy );
+        if ( in_array( $post_type, $taxonomy_object->object_type, true ) ) {
+            remove_meta_box( 'tagsdiv-' . $taxonomy, $post_type, 'side' );
+        }
+    }
+
+    public function add_taxonomy_metabox( $post_type, $taxonomy ) {
+        $taxonomy_object = get_taxonomy( $taxonomy );
+        if ( ! in_array( $post_type, $taxonomy_object->object_type, true ) ) {
+            return;
+        }
+
         add_meta_box(
-            'checkbox-collection-metabox',
-            __( 'Collections', 'runthings-taxonomy-tags-to-checkboxes' ),
-            [ $this, 'render_taxonomy_metabox' ],
-            'lodge',
+            'checkbox-' . $taxonomy . '-metabox',
+            __( $taxonomy_object->label, 'runthings-taxonomy-tags-to-checkboxes' ),
+            function ( $post ) use ( $taxonomy ) {
+                $this->render_taxonomy_metabox( $post, $taxonomy );
+            },
+            $post_type,
             'side',
             'default'
         );
     }
 
-    public function render_taxonomy_metabox( $post ) {
-        $taxonomy   = 'collection';
-
+    public function render_taxonomy_metabox( $post, $taxonomy ) {
         $terms      = get_terms( [
             'taxonomy'   => $taxonomy,
             'hide_empty' => false,
@@ -83,18 +101,18 @@ class Taxonomy_Tags_To_Checkboxes {
             echo '<ul>';
             foreach ( $terms as $term ) {
                 $checked = in_array( $term->term_id, $post_terms, true ) ? 'checked' : '';
-                echo '<li><label><input type="checkbox" name="checkbox_collection[]" value="' . esc_attr( $term->term_id ) . '" ' . $checked . '> ' . esc_html( $term->name ) . '</label></li>';
+                echo '<li><label><input type="checkbox" name="checkbox_' . esc_attr( $taxonomy ) . '[]" value="' . esc_attr( $term->term_id ) . '" ' . $checked . '> ' . esc_html( $term->name ) . '</label></li>';
             }
             echo '</ul>';
         } else {
-            echo esc_html__( 'No collections available.', 'runthings-taxonomy-tags-to-checkboxes' );
+            echo esc_html__( 'No terms available.', 'runthings-taxonomy-tags-to-checkboxes' );
         }
         
-        wp_nonce_field( 'checkbox_collection_nonce_action', 'checkbox_collection_nonce' );
+        wp_nonce_field( 'checkbox_' . $taxonomy . '_nonce_action', 'checkbox_' . $taxonomy . '_nonce' );
     }
 
-    public function save_taxonomy_metabox( $post_id ) {
-        if ( ! isset( $_POST['checkbox_collection_nonce'] ) || ! wp_verify_nonce( $_POST['checkbox_collection_nonce'], 'checkbox_collection_nonce_action' ) ) {
+    public function save_taxonomy_metabox( $post_id, $taxonomy ) {
+        if ( ! isset( $_POST['checkbox_' . $taxonomy . '_nonce'] ) || ! wp_verify_nonce( $_POST['checkbox_' . $taxonomy . '_nonce'], 'checkbox_' . $taxonomy . '_nonce_action' ) ) {
             return;
         }
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -103,9 +121,8 @@ class Taxonomy_Tags_To_Checkboxes {
         if ( ! current_user_can( 'edit_post', $post_id ) ) {
             return;
         }
-        $taxonomy       = 'collection';
-        $collection_ids = isset( $_POST['checkbox_collection'] ) ? array_map( 'intval', $_POST['checkbox_collection'] ) : [];
-        wp_set_post_terms( $post_id, $collection_ids, $taxonomy );
+        $term_ids = isset( $_POST['checkbox_' . $taxonomy] ) ? array_map( 'intval', $_POST['checkbox_' . $taxonomy] ) : [];
+        wp_set_post_terms( $post_id, $term_ids, $taxonomy );
     }
 }
 
