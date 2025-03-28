@@ -37,8 +37,16 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+define( 'RUNTHINGS_TTC_VERSION', '0.1.0' );
+define( 'RUNTHINGS_TTC_DIR', plugin_dir_path( __FILE__ ) );
+define( 'RUNTHINGS_TTC_URL', plugin_dir_url( __FILE__ ) );
+
+require_once RUNTHINGS_TTC_DIR . 'lib/admin-options.php';
+
 class Taxonomy_Tags_To_Checkboxes {
     public function __construct() {
+        new Admin_Options();
+
         add_action( 'add_meta_boxes', [ $this, 'remove_default_taxonomy_metabox' ], 10, 2 );
         add_action( 'add_meta_boxes', [ $this, 'add_taxonomy_metabox' ] );
         add_action( 'save_post', [ $this, 'save_taxonomy_metabox' ] );
