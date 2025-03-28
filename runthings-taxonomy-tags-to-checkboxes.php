@@ -54,7 +54,7 @@ class Taxonomy_Tags_To_Checkboxes {
     public function add_taxonomy_metabox() {
         add_meta_box(
             'checkbox-collection-metabox',
-            'Collections',
+            __( 'Collections', 'runthings-taxonomy-tags-to-checkboxes' ),
             [ $this, 'render_taxonomy_metabox' ],
             'lodge',
             'side',
@@ -80,7 +80,7 @@ class Taxonomy_Tags_To_Checkboxes {
             }
             echo '</ul>';
         } else {
-            echo 'No collections available.';
+            echo esc_html__( 'No collections available.', 'runthings-taxonomy-tags-to-checkboxes' );
         }
         
         wp_nonce_field( 'checkbox_collection_nonce_action', 'checkbox_collection_nonce' );
