@@ -49,6 +49,8 @@ class Taxonomy_Tags_To_Checkboxes {
 
         $selected_taxonomies = get_option( 'runthings_ttc_selected_taxonomies', [] );
 
+        $selected_taxonomies = apply_filters( 'runthings_ttc_selected_taxonomies', $selected_taxonomies );
+
         foreach ( $selected_taxonomies as $taxonomy ) {
             add_action( 'add_meta_boxes', function ( $post_type, $post ) use ( $taxonomy ) {
                 $this->remove_default_taxonomy_metabox( $post_type, $post, $taxonomy );
