@@ -40,35 +40,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Taxonomy_Tags_To_Checkboxes {
     public function __construct() {
-        add_action( 'add_meta_boxes', [ $this, 'remove_default_collection_metabox' ], 10, 2 );
-        add_action( 'add_meta_boxes', [ $this, 'add_collection_metabox' ] );
-        add_action( 'save_post', [ $this, 'save_collection_metabox' ] );
+        add_action( 'add_meta_boxes', [ $this, 'remove_default_taxonomy_metabox' ], 10, 2 );
+        add_action( 'add_meta_boxes', [ $this, 'add_taxonomy_metabox' ] );
+        add_action( 'save_post', [ $this, 'save_taxonomy_metabox' ] );
     }
 
-    public function remove_default_collection_metabox( $post_type, $post ) {
+    public function remove_default_taxonomy_metabox( $post_type, $post ) {
         if ( 'lodge' === $post_type ) {
             remove_meta_box( 'tagsdiv-collection', 'lodge', 'side' );
         }
     }
 
-    public function add_collection_metabox() {
+    public function add_taxonomy_metabox() {
         add_meta_box(
             'checkbox-collection-metabox',
             'Collections',
-            [ $this, 'render_collection_metabox' ],
+            [ $this, 'render_taxonomy_metabox' ],
             'lodge',
             'side',
             'default'
         );
     }
 
-    public function render_collection_metabox( $post ) {
+    public function render_taxonomy_metabox( $post ) {
         $taxonomy   = 'collection';
+
         $terms      = get_terms( [
             'taxonomy'   => $taxonomy,
             'hide_empty' => false,
         ] );
+
         $post_terms = wp_get_post_terms( $post->ID, $taxonomy, [ 'fields' => 'ids' ] );
+
         if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
             echo '<ul>';
             foreach ( $terms as $term ) {
@@ -79,10 +82,11 @@ class Taxonomy_Tags_To_Checkboxes {
         } else {
             echo 'No collections available.';
         }
+        
         wp_nonce_field( 'checkbox_collection_nonce_action', 'checkbox_collection_nonce' );
     }
 
-    public function save_collection_metabox( $post_id ) {
+    public function save_taxonomy_metabox( $post_id ) {
         if ( ! isset( $_POST['checkbox_collection_nonce'] ) || ! wp_verify_nonce( $_POST['checkbox_collection_nonce'], 'checkbox_collection_nonce_action' ) ) {
             return;
         }
