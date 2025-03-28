@@ -11,7 +11,6 @@
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  * Requires at least: 6.4
  * Requires PHP: 7.4
- * Requires Plugins: woocommerce
  * Text Domain: runthings-taxonomy-tags-to-checkboxes
  * Domain Path: /languages
 */
