@@ -65,12 +65,21 @@ class Admin_Options {
             return;
         }
 
+        // Enqueue JavaScript
         wp_enqueue_script(
             'runthings-ttc-admin',
             plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/admin.js',
             array('jquery'),
             '1.0.0',
             true
+        );
+        
+        // Enqueue CSS
+        wp_enqueue_style(
+            'runthings-ttc-admin-styles',
+            plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/admin.css',
+            array(),
+            '1.0.0'
         );
     }
 
