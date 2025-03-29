@@ -86,6 +86,10 @@ class Admin_Options {
     public function render_taxonomy_checkboxes() {
         $selected_taxonomies = get_option( 'runthings_ttc_selected_taxonomies', [] );
         $taxonomies          = get_taxonomies( [], 'objects' );
+        
+        // For counting visible taxonomies
+        $user_taxonomy_count = 0;
+        $system_taxonomy_count = 0;
 
         ?>
         <div class="tablenav top">
@@ -137,6 +141,20 @@ class Admin_Options {
                 </tr>
             </thead>
             <tbody>
+                <?php 
+                // No data message row (initially hidden)
+                ?>
+                <tr class="no-items" style="display: none;">
+                    <td class="colspanchange" colspan="4">
+                        <div class="no-taxonomy-items">
+                            <p><?php esc_html_e( 'No taxonomies found.', 'runthings-taxonomy-tags-to-checkboxes' ); ?></p>
+                            <p class="hidden-system-message">
+                                <?php esc_html_e( 'System taxonomies are currently hidden. Enable "Show system taxonomies" to see more options.', 'runthings-taxonomy-tags-to-checkboxes' ); ?>
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+                
                 <?php foreach ( $taxonomies as $taxonomy ) : 
                     $checked    = in_array( $taxonomy->name, $selected_taxonomies, true ) ? 'checked' : '';
                     
@@ -176,6 +194,13 @@ class Admin_Options {
                     
                     // Add a class for filtering
                     $row_class = $is_system ? 'system-taxonomy' : 'user-taxonomy';
+                    
+                    // Count taxonomies by type
+                    if ($is_system) {
+                        $system_taxonomy_count++;
+                    } else {
+                        $user_taxonomy_count++;
+                    }
                 ?>
                 <tr data-name="<?php echo esc_attr( strtolower($taxonomy->label) ); ?>" 
                     data-post-types="<?php echo esc_attr( strtolower(implode(', ', $taxonomy->object_type)) ); ?>"
@@ -231,6 +256,14 @@ class Admin_Options {
                 </tr>
             </tfoot>
         </table>
+        
+        <!-- Add stats counts for JavaScript to use -->
+        <script type="text/javascript">
+            var taxonomyStats = {
+                userCount: <?php echo intval($user_taxonomy_count); ?>,
+                systemCount: <?php echo intval($system_taxonomy_count); ?>
+            };
+        </script>
         <?php
     }
 }

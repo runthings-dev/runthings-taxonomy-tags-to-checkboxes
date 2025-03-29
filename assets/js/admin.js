@@ -60,9 +60,38 @@
       } else {
         $(".system-taxonomy").hide();
       }
+
+      updateNoItemsVisibility();
     });
 
-    // Hide system taxonomies by default
+    // Function to update the no-items message visibility
+    function updateNoItemsVisibility() {
+      var systemVisible = $("#show-system-taxonomies").is(":checked");
+
+      var visibleRows = $("#taxonomy-table tbody tr:visible").not(
+        ".no-items"
+      ).length;
+
+      if (visibleRows === 0) {
+        // Show the no items message
+        $(".no-items").show();
+
+        // If there are system taxonomies but they're hidden, show the hint
+        if (!systemVisible && taxonomyStats.systemCount > 0) {
+          $(".hidden-system-message").show();
+        } else {
+          $(".hidden-system-message").hide();
+        }
+      } else {
+        // Hide the no items message when there are visible rows
+        $(".no-items").hide();
+      }
+    }
+
+    // Initial setup - hide system taxonomies
     $("#show-system-taxonomies").prop("checked", false).trigger("change");
+
+    // Initial update of no-items visibility
+    updateNoItemsVisibility();
   });
 })(jQuery);
