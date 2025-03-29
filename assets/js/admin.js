@@ -52,5 +52,17 @@
 
       return false;
     });
+
+    // System taxonomy toggle
+    $("#show-system-taxonomies").on("change", function () {
+      if ($(this).is(":checked")) {
+        $(".system-taxonomy").show();
+      } else {
+        $(".system-taxonomy").hide();
+      }
+    });
+
+    // Hide system taxonomies by default
+    $("#show-system-taxonomies").prop("checked", false).trigger("change");
   });
 })(jQuery);

@@ -92,6 +92,12 @@ class Admin_Options {
             <div class="alignleft actions">
                 <p><?php esc_html_e( 'Select which taxonomies should use checkboxes instead of tags UI.', 'runthings-taxonomy-tags-to-checkboxes' ); ?></p>
             </div>
+            <div class="alignright">
+                <label>
+                    <input type="checkbox" id="show-system-taxonomies">
+                    <?php esc_html_e( 'Show system taxonomies', 'runthings-taxonomy-tags-to-checkboxes' ); ?>
+                </label>
+            </div>
             <br class="clear" />
         </div>
 
@@ -145,10 +151,37 @@ class Admin_Options {
                         __( 'Non-hierarchical (tags UI)', 'runthings-taxonomy-tags-to-checkboxes' );
                     $disabled   = $taxonomy->hierarchical ? 'disabled' : '';
                     $title      = $taxonomy->hierarchical ? 'title="' . esc_attr__( 'Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes' ) . '"' : '';
+                    
+                    // Determine if this is a system taxonomy
+                    $is_system = false;
+                    
+                    // Built-in taxonomies are generally system ones
+                    if (!empty($taxonomy->_builtin)) {
+                        $is_system = true;
+                    }
+                    
+                    // Non-public taxonomies are generally for internal use
+                    if (isset($taxonomy->public) && $taxonomy->public === false) {
+                        $is_system = true;
+                    }
+                    
+                    // Taxonomies with common system prefixes
+                    $system_prefixes = array('wp_', '_wp_', 'wc_', '_wc_', 'nav_', '_nav_');
+                    foreach ($system_prefixes as $prefix) {
+                        if (strpos($taxonomy->name, $prefix) === 0) {
+                            $is_system = true;
+                            break;
+                        }
+                    }
+                    
+                    // Add a class for filtering
+                    $row_class = $is_system ? 'system-taxonomy' : 'user-taxonomy';
                 ?>
                 <tr data-name="<?php echo esc_attr( strtolower($taxonomy->label) ); ?>" 
                     data-post-types="<?php echo esc_attr( strtolower(implode(', ', $taxonomy->object_type)) ); ?>"
-                    data-type="<?php echo esc_attr( $taxonomy->hierarchical ? '1' : '0' ); ?>">
+                    data-type="<?php echo esc_attr( $taxonomy->hierarchical ? '1' : '0' ); ?>"
+                    data-system="<?php echo $is_system ? '1' : '0'; ?>"
+                    class="<?php echo $row_class; ?>">
                     <th scope="row" class="check-column">
                         <input type="checkbox" name="runthings_ttc_selected_taxonomies[]" value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php echo $checked; ?> <?php echo $disabled; ?> <?php echo $title; ?>>
                     </th>
