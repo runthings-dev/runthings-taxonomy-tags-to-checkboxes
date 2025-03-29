@@ -138,7 +138,7 @@ class Admin_Options {
 
     public function render_taxonomy_checkboxes() {
         $selected_taxonomies = get_option('runthings_ttc_selected_taxonomies', []);
-        $height_settings = get_option('runthings_ttc_height_settings', []);
+        $height_settings     = get_option('runthings_ttc_height_settings', []);
         
         if (!is_array($selected_taxonomies)) {
             $selected_taxonomies = [];
@@ -218,7 +218,7 @@ class Admin_Options {
                 </tr>
                 
                 <?php foreach ( $taxonomies as $taxonomy ) : 
-                    $checked    = in_array( $taxonomy->name, $selected_taxonomies, true ) ? 'checked' : '';
+                    $checked = in_array( $taxonomy->name, $selected_taxonomies, true ) ? 'checked' : '';
                     
                     // Format post types with code tags
                     $post_types_array = array_map(function($type) {
@@ -226,11 +226,17 @@ class Admin_Options {
                     }, $taxonomy->object_type);
                     $post_types = implode( ' ', $post_types_array );
                     
-                    $type       = $taxonomy->hierarchical ? 
-                        __( 'Hierarchical (already uses checkboxes)', 'runthings-taxonomy-tags-to-checkboxes' ) : 
-                        __( 'Non-hierarchical (tags UI)', 'runthings-taxonomy-tags-to-checkboxes' );
-                    $disabled   = $taxonomy->hierarchical ? 'disabled' : '';
-                    $title      = $taxonomy->hierarchical ? 'title="' . esc_attr__( 'Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes' ) . '"' : '';
+                    // Format taxonomy type with proper abbr for both types
+                    if ($taxonomy->hierarchical) {
+                        $type = '<abbr title="' . esc_attr__('Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes') . '">' . 
+                               esc_html__('Hierarchical', 'runthings-taxonomy-tags-to-checkboxes') . '</abbr>';
+                    } else {
+                        $type = '<abbr title="' . esc_attr__('Uses tags interface by default', 'runthings-taxonomy-tags-to-checkboxes') . '">' . 
+                               esc_html__('Non-hierarchical', 'runthings-taxonomy-tags-to-checkboxes') . '</abbr>';
+                    }
+                    
+                    $disabled = $taxonomy->hierarchical ? 'disabled' : '';
+                    $title    = $taxonomy->hierarchical ? 'title="' . esc_attr__( 'Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes' ) . '"' : '';
                     
                     // Determine if this is a system taxonomy
                     $is_system = false;
@@ -285,7 +291,7 @@ class Admin_Options {
                         </div>
                     </td>
                     <td class="column-post_types"><?php echo $post_types; // Already escaped individually ?></td>
-                    <td class="column-type"><?php echo esc_html( $type ); ?></td>
+                    <td class="column-type"><?php echo $type; // No escaping needed, we did it above ?></td>
                     <td class="column-height">
                         <select name="runthings_ttc_height_settings[<?php echo esc_attr($taxonomy->name); ?>][type]" class="height-type-select" <?php echo $height_disabled; ?>>
                             <option value="auto" <?php selected($height_type, 'auto'); ?>><?php esc_html_e('Auto', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
@@ -347,8 +353,8 @@ class Admin_Options {
      * @return array Array with userCount and systemCount
      */
     private function get_taxonomy_counts() {
-        $taxonomies = get_taxonomies( [], 'objects' );
-        $user_count = 0;
+        $taxonomies   = get_taxonomies( [], 'objects' );
+        $user_count   = 0;
         $system_count = 0;
         
         foreach ( $taxonomies as $taxonomy ) {
