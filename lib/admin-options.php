@@ -51,6 +51,13 @@ class Admin_Options {
             ['sanitize_callback' => [$this, 'sanitize_height_settings']]
         );
 
+        // Register new setting for Edit Links
+        register_setting(
+            'runthings_taxonomy_options_group',
+            'runthings_ttc_show_links',
+            ['sanitize_callback' => [$this, 'sanitize_show_links_settings']]
+        );
+
         add_settings_section(
             'runthings_taxonomy_section',
             __( 'Taxonomy Settings', 'runthings-taxonomy-tags-to-checkboxes' ),
@@ -106,6 +113,16 @@ class Admin_Options {
         return $sanitized;
     }
 
+    /**
+     * Sanitize show links settings
+     */
+    public function sanitize_show_links_settings($input) {
+        if (!is_array($input)) {
+            return [];
+        }
+        return array_map('sanitize_text_field', $input);
+    }
+
     public function enqueue_admin_scripts($hook) {
         if ('settings_page_runthings-taxonomy-options' !== $hook) {
             return;
@@ -139,6 +156,7 @@ class Admin_Options {
     public function render_taxonomy_checkboxes() {
         $selected_taxonomies = get_option('runthings_ttc_selected_taxonomies', []);
         $height_settings     = get_option('runthings_ttc_height_settings', []);
+        $show_links          = get_option('runthings_ttc_show_links', []);
         
         if (!is_array($selected_taxonomies)) {
             $selected_taxonomies = [];
@@ -146,6 +164,10 @@ class Admin_Options {
         
         if (!is_array($height_settings)) {
             $height_settings = [];
+        }
+        
+        if (!is_array($show_links)) {
+            $show_links = [];
         }
         
         $taxonomies = get_taxonomies([], 'objects');
@@ -200,6 +222,9 @@ class Admin_Options {
                     <th scope="col" class="manage-column column-height">
                         <span><?php esc_html_e('Height', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
                     </th>
+                    <th scope="col" class="manage-column column-show-link">
+                        <span><?php esc_html_e('Show Edit Link', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -207,7 +232,7 @@ class Admin_Options {
                 // No data message row (initially hidden)
                 ?>
                 <tr class="no-items" style="display: none;">
-                    <td class="colspanchange" colspan="5">
+                    <td class="colspanchange" colspan="6">
                         <div class="no-taxonomy-items">
                             <p><?php esc_html_e( 'No taxonomies found.', 'runthings-taxonomy-tags-to-checkboxes' ); ?></p>
                             <p class="hidden-system-message">
@@ -220,26 +245,44 @@ class Admin_Options {
                 <?php foreach ( $taxonomies as $taxonomy ) : 
                     $checked = in_array( $taxonomy->name, $selected_taxonomies, true ) ? 'checked' : '';
                     
-                    // Format post types
+                    // Format post types with code tags
                     $post_types_array = array_map(function($type) {
                         return '<code>' . esc_html($type) . '</code>';
                     }, $taxonomy->object_type);
                     $post_types = implode( ' ', $post_types_array );
                     
-                    // Format taxonomy type
+                    // Format taxonomy type with proper abbr for hierarchical
                     if ($taxonomy->hierarchical) {
                         $type = '<abbr title="' . esc_attr__('Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes') . '">' . 
                                esc_html__('Hierarchical', 'runthings-taxonomy-tags-to-checkboxes') . '</abbr>';
                     } else {
-                        $type = '<abbr title="' . esc_attr__('Uses tags interface by default', 'runthings-taxonomy-tags-to-checkboxes') . '">' . 
-                               esc_html__('Non-hierarchical', 'runthings-taxonomy-tags-to-checkboxes') . '</abbr>';
+                        $type = esc_html__('Non-hierarchical (tags UI)', 'runthings-taxonomy-tags-to-checkboxes');
                     }
                     
                     $disabled = $taxonomy->hierarchical ? 'disabled' : '';
                     $title    = $taxonomy->hierarchical ? 'title="' . esc_attr__( 'Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes' ) . '"' : '';
                     
                     // Determine if this is a system taxonomy
-                    $is_system = $this->calculate_is_system($taxonomy);
+                    $is_system = false;
+                    
+                    // Built-in taxonomies are generally system ones
+                    if (!empty($taxonomy->_builtin)) {
+                        $is_system = true;
+                    }
+                    
+                    // Non-public taxonomies are generally for internal use
+                    if (isset($taxonomy->public) && $taxonomy->public === false) {
+                        $is_system = true;
+                    }
+                    
+                    // Taxonomies with common system prefixes
+                    $system_prefixes = array('wp_', '_wp_', 'wc_', '_wc_', 'nav_', '_nav_');
+                    foreach ($system_prefixes as $prefix) {
+                        if (strpos($taxonomy->name, $prefix) === 0) {
+                            $is_system = true;
+                            break;
+                        }
+                    }
                     
                     // Add a class for filtering
                     $row_class = $is_system ? 'system-taxonomy' : 'user-taxonomy';
@@ -256,6 +299,12 @@ class Admin_Options {
                     
                     // Disable height controls initially for hierarchical or unselected taxonomies
                     $height_disabled = $taxonomy->hierarchical || !$is_selected ? 'disabled' : '';
+
+                    // Is this taxonomy in the show links list
+                    $show_link_checked = in_array($taxonomy->name, $show_links, true) ? 'checked' : '';
+                    
+                    // Disable show link checkbox for hierarchical or unselected taxonomies
+                    $link_disabled = $taxonomy->hierarchical || !$is_selected ? 'disabled' : '';
                 ?>
                 <tr data-name="<?php echo esc_attr( strtolower($taxonomy->label) ); ?>" 
                     data-post-types="<?php echo esc_attr( strtolower(implode(', ', $taxonomy->object_type)) ); ?>"
@@ -283,6 +332,9 @@ class Admin_Options {
                             <input type="number" name="runthings_ttc_height_settings[<?php echo esc_attr($taxonomy->name); ?>][value]" value="<?php echo esc_attr($custom_height); ?>" min="50" max="1000" step="10" <?php echo $height_disabled; ?>>
                             <span>px</span>
                         </div>
+                    </td>
+                    <td class="column-show-link">
+                        <input type="checkbox" name="runthings_ttc_show_links[]" value="<?php echo esc_attr($taxonomy->name); ?>" <?php echo $show_link_checked; ?> <?php echo $link_disabled; ?>>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -321,6 +373,9 @@ class Admin_Options {
                     </th>
                     <th scope="col" class="manage-column column-height">
                         <span><?php esc_html_e('Height', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
+                    </th>
+                    <th scope="col" class="manage-column column-show-link">
+                        <span><?php esc_html_e('Show Edit Link', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
                     </th>
                 </tr>
             </tfoot>
@@ -372,33 +427,5 @@ class Admin_Options {
             'userCount' => $user_count,
             'systemCount' => $system_count
         );
-    }
-
-    /**
-     * Check if a taxonomy is a system taxonomy
-     *
-     * @param object $taxonomy The taxonomy object
-     * @return bool True if it's a system taxonomy, false otherwise
-     */
-    private function calculate_is_system($taxonomy) {
-        // Built-in taxonomies are generally system ones
-        if (!empty($taxonomy->_builtin)) {
-            return true;
-        }
-        
-        // Non-public taxonomies are generally for internal use
-        if (isset($taxonomy->public) && $taxonomy->public === false) {
-            return true;
-        }
-        
-        // Taxonomies with common system prefixes
-        $system_prefixes = array('wp_', '_wp_', 'wc_', '_wc_', 'nav_', '_nav_');
-        foreach ($system_prefixes as $prefix) {
-            if (strpos($taxonomy->name, $prefix) === 0) {
-                return true;
-            }
-        }
-        
-        return false;
     }
 }

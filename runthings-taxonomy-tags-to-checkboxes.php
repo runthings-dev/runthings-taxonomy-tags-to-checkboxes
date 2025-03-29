@@ -89,6 +89,12 @@ class Taxonomy_Tags_To_Checkboxes {
                 border: 1px solid #ccc;
                 margin-top: 1em;
             }
+            .taxonomy-edit-link {
+                margin-top: 1em;
+                }
+            .taxonomy-edit-link a {
+                font-weight: 600;
+            }
         ');
     }
 
@@ -127,6 +133,9 @@ class Taxonomy_Tags_To_Checkboxes {
         
         // Get style for the taxonomy container
         $style = $this->get_taxonomy_container_style($taxonomy);
+        
+        // Check if we should show the edit link
+        $show_links = get_option('runthings_ttc_show_links', []);
 
         if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
             echo '<div class="taxonomies-container" style="' . esc_attr($style) . '"><ul>';
@@ -138,6 +147,9 @@ class Taxonomy_Tags_To_Checkboxes {
         } else {
             echo esc_html__( 'No terms available.', 'runthings-taxonomy-tags-to-checkboxes' );
         }
+        
+        // Output the edit taxonomy link
+        $this->maybe_output_edit_taxonomy_link($taxonomy, $show_links);
         
         wp_nonce_field( 'checkbox_' . $taxonomy . '_nonce_action', 'checkbox_' . $taxonomy . '_nonce' );
     }
@@ -180,6 +192,29 @@ class Taxonomy_Tags_To_Checkboxes {
         }
         
         return $style;
+    }
+
+    /**
+     * Outputs the "Add / Edit Taxonomy" link if enabled and user has permissions
+     *
+     * @param string $taxonomy The taxonomy name
+     * @param array $show_links Array of taxonomies where the link should be shown
+     */
+    private function maybe_output_edit_taxonomy_link($taxonomy, $show_links) {
+        if (is_array($show_links) && in_array($taxonomy, $show_links, true)) {
+            $taxonomy_object = get_taxonomy($taxonomy);
+            if ($taxonomy_object && current_user_can($taxonomy_object->cap->manage_terms)) {
+                $edit_link = admin_url('edit-tags.php?taxonomy=' . $taxonomy);
+                echo '<div class="taxonomy-edit-link">';
+                echo '<a href="' . esc_url($edit_link) . '" target="_blank">';
+                printf(
+                    /* translators: %s: Taxonomy label */
+                    esc_html__('+ Add / Edit %s', 'runthings-taxonomy-tags-to-checkboxes'),
+                    esc_html($taxonomy_object->labels->name)
+                );
+                echo '</a></div>';
+            }
+        }
     }
 
     public function save_taxonomy_metabox( $post_id, $taxonomy ) {

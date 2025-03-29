@@ -67,3 +67,9 @@
 .custom-height-input input[type="number"] {
   width: 70px;
 }
+
+/* Show Link Column */
+#taxonomy-table .column-show-link {
+  width: 100px;
+  text-align: center;
+}

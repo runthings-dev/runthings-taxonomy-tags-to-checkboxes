@@ -77,7 +77,7 @@
       }
     });
 
-    // Taxonomy checkbox change handler - enable/disable height controls
+    // Taxonomy checkbox change handler
     $("input[name='runthings_ttc_selected_taxonomies[]']").on(
       "change",
       function () {
@@ -85,15 +85,20 @@
         var $row = $this.closest("tr");
         var $heightSelect = $row.find(".height-type-select");
         var $customHeight = $row.find(".custom-height-input input");
+        var $showLinkCheckbox = $row.find(
+          "input[name='runthings_ttc_show_links[]']"
+        );
 
         if ($this.is(":checked") && !$this.is(":disabled")) {
-          // Enable height controls
+          // Enable height controls and show link checkbox
           $heightSelect.prop("disabled", false);
           $customHeight.prop("disabled", false);
+          $showLinkCheckbox.prop("disabled", false);
         } else {
-          // Disable height controls
+          // Disable height controls and show link checkbox
           $heightSelect.prop("disabled", true);
           $customHeight.prop("disabled", true);
+          $showLinkCheckbox.prop("disabled", true);
         }
       }
     );
