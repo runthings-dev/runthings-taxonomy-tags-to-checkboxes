@@ -22,3 +22,13 @@
   margin-top: 0;
   padding-top: 0;
 }
+
+/* Post type code formatting */
+#taxonomy-table .column-post_types code {
+  display: inline-block;
+  margin: 1px 2px;
+  padding: 2px 5px;
+  background-color: #f0f0f1;
+  border-radius: 2px;
+  font-size: 12px;
+}

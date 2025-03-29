@@ -133,14 +133,20 @@ class Admin_Options {
             <tbody>
                 <?php foreach ( $taxonomies as $taxonomy ) : 
                     $checked    = in_array( $taxonomy->name, $selected_taxonomies, true ) ? 'checked' : '';
-                    $post_types = implode( ', ', $taxonomy->object_type );
+                    
+                    // Format post types with code tags
+                    $post_types_array = array_map(function($type) {
+                        return '<code>' . esc_html($type) . '</code>';
+                    }, $taxonomy->object_type);
+                    $post_types = implode( ' ', $post_types_array );
+                    
                     $type       = $taxonomy->hierarchical ? 
                         __( 'Hierarchical (already uses checkboxes)', 'runthings-taxonomy-tags-to-checkboxes' ) : 
                         __( 'Non-hierarchical (tags UI)', 'runthings-taxonomy-tags-to-checkboxes' );
                     $disabled   = $taxonomy->hierarchical ? 'disabled' : '';
                 ?>
                 <tr data-name="<?php echo esc_attr( strtolower($taxonomy->label) ); ?>" 
-                    data-post-types="<?php echo esc_attr( strtolower($post_types) ); ?>"
+                    data-post-types="<?php echo esc_attr( strtolower(implode(', ', $taxonomy->object_type)) ); ?>"
                     data-type="<?php echo esc_attr( $taxonomy->hierarchical ? '1' : '0' ); ?>">
                     <th scope="row" class="check-column">
                         <input type="checkbox" name="runthings_ttc_selected_taxonomies[]" value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php echo $checked; ?> <?php echo $disabled; ?>>
@@ -151,7 +157,7 @@ class Admin_Options {
                             <span class="id"><?php echo esc_html( $taxonomy->name ); ?></span>
                         </div>
                     </td>
-                    <td class="column-post_types"><?php echo esc_html( $post_types ); ?></td>
+                    <td class="column-post_types"><?php echo $post_types; // Already escaped individually ?></td>
                     <td class="column-type"><?php echo esc_html( $type ); ?></td>
                 </tr>
                 <?php endforeach; ?>
