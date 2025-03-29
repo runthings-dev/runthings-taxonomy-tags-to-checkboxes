@@ -144,12 +144,13 @@ class Admin_Options {
                         __( 'Hierarchical (already uses checkboxes)', 'runthings-taxonomy-tags-to-checkboxes' ) : 
                         __( 'Non-hierarchical (tags UI)', 'runthings-taxonomy-tags-to-checkboxes' );
                     $disabled   = $taxonomy->hierarchical ? 'disabled' : '';
+                    $title      = $taxonomy->hierarchical ? 'title="' . esc_attr__( 'Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes' ) . '"' : '';
                 ?>
                 <tr data-name="<?php echo esc_attr( strtolower($taxonomy->label) ); ?>" 
                     data-post-types="<?php echo esc_attr( strtolower(implode(', ', $taxonomy->object_type)) ); ?>"
                     data-type="<?php echo esc_attr( $taxonomy->hierarchical ? '1' : '0' ); ?>">
                     <th scope="row" class="check-column">
-                        <input type="checkbox" name="runthings_ttc_selected_taxonomies[]" value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php echo $checked; ?> <?php echo $disabled; ?>>
+                        <input type="checkbox" name="runthings_ttc_selected_taxonomies[]" value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php echo $checked; ?> <?php echo $disabled; ?> <?php echo $title; ?>>
                     </th>
                     <td class="column-name column-primary">
                         <strong><?php echo esc_html( $taxonomy->label ); ?></strong>
