@@ -10,6 +10,7 @@ class Admin_Options {
     public function __construct() {
         add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
         add_action( 'admin_init', [ $this, 'register_settings' ] );
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
     }
 
     public function add_admin_menu() {
@@ -59,21 +60,128 @@ class Admin_Options {
         );
     }
 
+    public function enqueue_admin_scripts($hook) {
+        if ('settings_page_runthings-taxonomy-options' !== $hook) {
+            return;
+        }
+
+        wp_enqueue_script(
+            'runthings-ttc-admin',
+            plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/admin.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+    }
+
     public function render_taxonomy_checkboxes() {
         $selected_taxonomies = get_option( 'runthings_ttc_selected_taxonomies', [] );
         $taxonomies          = get_taxonomies( [], 'objects' );
 
-        echo '<ul style="list-style: none; margin: 0; padding: 0;">';
-        foreach ( $taxonomies as $taxonomy ) {
-            $checked = in_array( $taxonomy->name, $selected_taxonomies, true ) ? 'checked' : '';
-            $post_types = implode( ', ', $taxonomy->object_type );
-            echo '<li>
-                    <label>
-                        <input type="checkbox" name="runthings_ttc_selected_taxonomies[]" value="' . esc_attr( $taxonomy->name ) . '" ' . $checked . '>
-                        ' . esc_html( $taxonomy->label ) . ' (' . esc_html( $post_types ) . ')
-                    </label>
-                  </li>';
-        }
-        echo '</ul>';
+        ?>
+        <div class="tablenav top">
+            <div class="alignleft actions">
+                <p><?php esc_html_e( 'Select which taxonomies should use checkboxes instead of tags UI.', 'runthings-taxonomy-tags-to-checkboxes' ); ?></p>
+            </div>
+            <br class="clear" />
+        </div>
+
+        <table class="wp-list-table widefat fixed striped table-view-list" id="taxonomy-table">
+            <thead>
+                <tr>
+                    <th scope="col" class="manage-column column-cb check-column">
+                        <label class="screen-reader-text"><?php esc_html_e( 'Select All', 'runthings-taxonomy-tags-to-checkboxes' ); ?></label>
+                    </th>
+                    <th scope="col" class="manage-column column-name column-primary sortable desc">
+                        <a href="#" class="sort-column" data-column="name">
+                            <span><?php esc_html_e( 'Name', 'runthings-taxonomy-tags-to-checkboxes' ); ?></span>
+                            <span class="sorting-indicators">
+                                <span class="sorting-indicator asc" aria-hidden="true"></span>
+                                <span class="sorting-indicator desc" aria-hidden="true"></span>
+                            </span>
+                        </a>
+                    </th>
+                    <th scope="col" class="manage-column column-post_types sortable desc">
+                        <a href="#" class="sort-column" data-column="post_types">
+                            <span><?php esc_html_e( 'Post Types', 'runthings-taxonomy-tags-to-checkboxes' ); ?></span>
+                            <span class="sorting-indicators">
+                                <span class="sorting-indicator asc" aria-hidden="true"></span>
+                                <span class="sorting-indicator desc" aria-hidden="true"></span>
+                            </span>
+                        </a>
+                    </th>
+                    <th scope="col" class="manage-column column-type sortable desc">
+                        <a href="#" class="sort-column" data-column="type">
+                            <span><?php esc_html_e( 'Type', 'runthings-taxonomy-tags-to-checkboxes' ); ?></span>
+                            <span class="sorting-indicators">
+                                <span class="sorting-indicator asc" aria-hidden="true"></span>
+                                <span class="sorting-indicator desc" aria-hidden="true"></span>
+                            </span>
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ( $taxonomies as $taxonomy ) : 
+                    $checked    = in_array( $taxonomy->name, $selected_taxonomies, true ) ? 'checked' : '';
+                    $post_types = implode( ', ', $taxonomy->object_type );
+                    $type       = $taxonomy->hierarchical ? 
+                        __( 'Hierarchical (already uses checkboxes)', 'runthings-taxonomy-tags-to-checkboxes' ) : 
+                        __( 'Non-hierarchical (tags UI)', 'runthings-taxonomy-tags-to-checkboxes' );
+                    $disabled   = $taxonomy->hierarchical ? 'disabled' : '';
+                ?>
+                <tr data-name="<?php echo esc_attr( strtolower($taxonomy->label) ); ?>" 
+                    data-post-types="<?php echo esc_attr( strtolower($post_types) ); ?>"
+                    data-type="<?php echo esc_attr( $taxonomy->hierarchical ? '1' : '0' ); ?>">
+                    <th scope="row" class="check-column">
+                        <input type="checkbox" name="runthings_ttc_selected_taxonomies[]" value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php echo $checked; ?> <?php echo $disabled; ?>>
+                    </th>
+                    <td class="column-name column-primary">
+                        <strong><?php echo esc_html( $taxonomy->label ); ?></strong>
+                        <div class="row-actions">
+                            <span class="id"><?php echo esc_html( $taxonomy->name ); ?></span>
+                        </div>
+                    </td>
+                    <td class="column-post_types"><?php echo esc_html( $post_types ); ?></td>
+                    <td class="column-type"><?php echo esc_html( $type ); ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="col" class="manage-column column-cb check-column">
+                        <label class="screen-reader-text"><?php esc_html_e( 'Select All', 'runthings-taxonomy-tags-to-checkboxes' ); ?></label>
+                    </th>
+                    <th scope="col" class="manage-column column-name column-primary sortable desc">
+                        <a href="#" class="sort-column" data-column="name">
+                            <span><?php esc_html_e( 'Name', 'runthings-taxonomy-tags-to-checkboxes' ); ?></span>
+                            <span class="sorting-indicators">
+                                <span class="sorting-indicator asc" aria-hidden="true"></span>
+                                <span class="sorting-indicator desc" aria-hidden="true"></span>
+                            </span>
+                        </a>
+                    </th>
+                    <th scope="col" class="manage-column column-post_types sortable desc">
+                        <a href="#" class="sort-column" data-column="post_types">
+                            <span><?php esc_html_e( 'Post Types', 'runthings-taxonomy-tags-to-checkboxes' ); ?></span>
+                            <span class="sorting-indicators">
+                                <span class="sorting-indicator asc" aria-hidden="true"></span>
+                                <span class="sorting-indicator desc" aria-hidden="true"></span>
+                            </span>
+                        </a>
+                    </th>
+                    <th scope="col" class="manage-column column-type sortable desc">
+                        <a href="#" class="sort-column" data-column="type">
+                            <span><?php esc_html_e( 'Type', 'runthings-taxonomy-tags-to-checkboxes' ); ?></span>
+                            <span class="sorting-indicators">
+                                <span class="sorting-indicator asc" aria-hidden="true"></span>
+                                <span class="sorting-indicator desc" aria-hidden="true"></span>
+                            </span>
+                        </a>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+        <?php
     }
 }
