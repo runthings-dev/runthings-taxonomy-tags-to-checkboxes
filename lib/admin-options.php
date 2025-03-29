@@ -92,7 +92,12 @@ class Admin_Options {
 
     public function render_taxonomy_checkboxes() {
         $selected_taxonomies = get_option( 'runthings_ttc_selected_taxonomies', [] );
-        $taxonomies          = get_taxonomies( [], 'objects' );
+        
+        if (!is_array($selected_taxonomies)) {
+            $selected_taxonomies = [];
+        }
+        
+        $taxonomies = get_taxonomies( [], 'objects' );
 
         ?>
         <div class="tablenav top">
