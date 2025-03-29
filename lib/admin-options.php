@@ -74,6 +74,13 @@ class Admin_Options {
             true
         );
         
+        // Localize script with taxonomy stats
+        wp_localize_script(
+            'runthings-ttc-admin',
+            'taxonomyStats',
+            $this->get_taxonomy_counts()
+        );
+        
         // Enqueue CSS
         wp_enqueue_style(
             'runthings-ttc-admin-styles',
@@ -86,10 +93,6 @@ class Admin_Options {
     public function render_taxonomy_checkboxes() {
         $selected_taxonomies = get_option( 'runthings_ttc_selected_taxonomies', [] );
         $taxonomies          = get_taxonomies( [], 'objects' );
-        
-        // For counting visible taxonomies
-        $user_taxonomy_count = 0;
-        $system_taxonomy_count = 0;
 
         ?>
         <div class="tablenav top">
@@ -194,13 +197,6 @@ class Admin_Options {
                     
                     // Add a class for filtering
                     $row_class = $is_system ? 'system-taxonomy' : 'user-taxonomy';
-                    
-                    // Count taxonomies by type
-                    if ($is_system) {
-                        $system_taxonomy_count++;
-                    } else {
-                        $user_taxonomy_count++;
-                    }
                 ?>
                 <tr data-name="<?php echo esc_attr( strtolower($taxonomy->label) ); ?>" 
                     data-post-types="<?php echo esc_attr( strtolower(implode(', ', $taxonomy->object_type)) ); ?>"
@@ -256,14 +252,52 @@ class Admin_Options {
                 </tr>
             </tfoot>
         </table>
-        
-        <!-- Add stats counts for JavaScript to use -->
-        <script type="text/javascript">
-            var taxonomyStats = {
-                userCount: <?php echo intval($user_taxonomy_count); ?>,
-                systemCount: <?php echo intval($system_taxonomy_count); ?>
-            };
-        </script>
         <?php
+    }
+
+    /**
+     * Count user and system taxonomies
+     *
+     * @return array Array with userCount and systemCount
+     */
+    private function get_taxonomy_counts() {
+        $taxonomies = get_taxonomies( [], 'objects' );
+        $user_count = 0;
+        $system_count = 0;
+        
+        foreach ( $taxonomies as $taxonomy ) {
+            $is_system = false;
+            
+            // Built-in taxonomies are generally system ones
+            if (!empty($taxonomy->_builtin)) {
+                $is_system = true;
+            }
+            
+            // Non-public taxonomies are generally for internal use
+            if (isset($taxonomy->public) && $taxonomy->public === false) {
+                $is_system = true;
+            }
+            
+            // Taxonomies with common system prefixes
+            $system_prefixes = array('wp_', '_wp_', 'wc_', '_wc_', 'nav_', '_nav_');
+            foreach ($system_prefixes as $prefix) {
+                if (strpos($taxonomy->name, $prefix) === 0) {
+                    $is_system = true;
+                    break;
+                }
+            }
+            
+            // Count taxonomies by type
+            if ($is_system) {
+                $system_count++;
+            } else {
+                $user_count++;
+            }
+        }
+        
+        return array(
+            'userCount' => $user_count,
+            'systemCount' => $system_count
+        );
     }
 }
