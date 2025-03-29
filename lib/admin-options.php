@@ -220,13 +220,13 @@ class Admin_Options {
                 <?php foreach ( $taxonomies as $taxonomy ) : 
                     $checked = in_array( $taxonomy->name, $selected_taxonomies, true ) ? 'checked' : '';
                     
-                    // Format post types with code tags
+                    // Format post types
                     $post_types_array = array_map(function($type) {
                         return '<code>' . esc_html($type) . '</code>';
                     }, $taxonomy->object_type);
                     $post_types = implode( ' ', $post_types_array );
                     
-                    // Format taxonomy type with proper abbr for both types
+                    // Format taxonomy type
                     if ($taxonomy->hierarchical) {
                         $type = '<abbr title="' . esc_attr__('Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes') . '">' . 
                                esc_html__('Hierarchical', 'runthings-taxonomy-tags-to-checkboxes') . '</abbr>';
@@ -239,26 +239,7 @@ class Admin_Options {
                     $title    = $taxonomy->hierarchical ? 'title="' . esc_attr__( 'Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes' ) . '"' : '';
                     
                     // Determine if this is a system taxonomy
-                    $is_system = false;
-                    
-                    // Built-in taxonomies are generally system ones
-                    if (!empty($taxonomy->_builtin)) {
-                        $is_system = true;
-                    }
-                    
-                    // Non-public taxonomies are generally for internal use
-                    if (isset($taxonomy->public) && $taxonomy->public === false) {
-                        $is_system = true;
-                    }
-                    
-                    // Taxonomies with common system prefixes
-                    $system_prefixes = array('wp_', '_wp_', 'wc_', '_wc_', 'nav_', '_nav_');
-                    foreach ($system_prefixes as $prefix) {
-                        if (strpos($taxonomy->name, $prefix) === 0) {
-                            $is_system = true;
-                            break;
-                        }
-                    }
+                    $is_system = $this->calculate_is_system($taxonomy);
                     
                     // Add a class for filtering
                     $row_class = $is_system ? 'system-taxonomy' : 'user-taxonomy';
@@ -391,5 +372,33 @@ class Admin_Options {
             'userCount' => $user_count,
             'systemCount' => $system_count
         );
+    }
+
+    /**
+     * Check if a taxonomy is a system taxonomy
+     *
+     * @param object $taxonomy The taxonomy object
+     * @return bool True if it's a system taxonomy, false otherwise
+     */
+    private function calculate_is_system($taxonomy) {
+        // Built-in taxonomies are generally system ones
+        if (!empty($taxonomy->_builtin)) {
+            return true;
+        }
+        
+        // Non-public taxonomies are generally for internal use
+        if (isset($taxonomy->public) && $taxonomy->public === false) {
+            return true;
+        }
+        
+        // Taxonomies with common system prefixes
+        $system_prefixes = array('wp_', '_wp_', 'wc_', '_wc_', 'nav_', '_nav_');
+        foreach ($system_prefixes as $prefix) {
+            if (strpos($taxonomy->name, $prefix) === 0) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
