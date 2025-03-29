@@ -41,7 +41,14 @@ class Admin_Options {
     public function register_settings() {
         register_setting(
             'runthings_taxonomy_options_group',
-            'runthings_ttc_selected_taxonomies'
+            'runthings_ttc_selected_taxonomies',
+            ['sanitize_callback' => [$this, 'sanitize_taxonomy_settings']]
+        );
+        
+        register_setting(
+            'runthings_taxonomy_options_group',
+            'runthings_ttc_height_settings',
+            ['sanitize_callback' => [$this, 'sanitize_height_settings']]
         );
 
         add_settings_section(
@@ -58,6 +65,45 @@ class Admin_Options {
             'runthings-taxonomy-options',
             'runthings_taxonomy_section'
         );
+    }
+    
+    /**
+     * Sanitize taxonomy settings
+     */
+    public function sanitize_taxonomy_settings($input) {
+        if (!is_array($input)) {
+            return [];
+        }
+        return array_map('sanitize_text_field', $input);
+    }
+    
+    /**
+     * Sanitize height settings
+     */
+    public function sanitize_height_settings($input) {
+        if (!is_array($input)) {
+            return [];
+        }
+        
+        $sanitized = [];
+        
+        foreach ($input as $taxonomy => $settings) {
+            $taxonomy = sanitize_text_field($taxonomy);
+            
+            if (!isset($settings['type']) || !in_array($settings['type'], ['auto', 'full', 'custom'])) {
+                $settings['type'] = 'auto';
+            }
+            
+            $sanitized[$taxonomy] = [
+                'type' => sanitize_text_field($settings['type']),
+            ];
+            
+            if ($settings['type'] === 'custom' && isset($settings['value'])) {
+                $sanitized[$taxonomy]['value'] = absint($settings['value']);
+            }
+        }
+        
+        return $sanitized;
     }
 
     public function enqueue_admin_scripts($hook) {
@@ -91,13 +137,18 @@ class Admin_Options {
     }
 
     public function render_taxonomy_checkboxes() {
-        $selected_taxonomies = get_option( 'runthings_ttc_selected_taxonomies', [] );
+        $selected_taxonomies = get_option('runthings_ttc_selected_taxonomies', []);
+        $height_settings = get_option('runthings_ttc_height_settings', []);
         
         if (!is_array($selected_taxonomies)) {
             $selected_taxonomies = [];
         }
         
-        $taxonomies = get_taxonomies( [], 'objects' );
+        if (!is_array($height_settings)) {
+            $height_settings = [];
+        }
+        
+        $taxonomies = get_taxonomies([], 'objects');
 
         ?>
         <div class="tablenav top">
@@ -146,6 +197,9 @@ class Admin_Options {
                             </span>
                         </a>
                     </th>
+                    <th scope="col" class="manage-column column-height">
+                        <span><?php esc_html_e('Height', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -153,7 +207,7 @@ class Admin_Options {
                 // No data message row (initially hidden)
                 ?>
                 <tr class="no-items" style="display: none;">
-                    <td class="colspanchange" colspan="4">
+                    <td class="colspanchange" colspan="5">
                         <div class="no-taxonomy-items">
                             <p><?php esc_html_e( 'No taxonomies found.', 'runthings-taxonomy-tags-to-checkboxes' ); ?></p>
                             <p class="hidden-system-message">
@@ -202,6 +256,19 @@ class Admin_Options {
                     
                     // Add a class for filtering
                     $row_class = $is_system ? 'system-taxonomy' : 'user-taxonomy';
+
+                    // Get height settings for this taxonomy
+                    $height_type = isset($height_settings[$taxonomy->name]['type']) ? 
+                        $height_settings[$taxonomy->name]['type'] : 'auto';
+                    
+                    $custom_height = isset($height_settings[$taxonomy->name]['value']) ? 
+                        intval($height_settings[$taxonomy->name]['value']) : 200;
+
+                    // Is this taxonomy selected for conversion
+                    $is_selected = in_array($taxonomy->name, $selected_taxonomies, true);
+                    
+                    // Disable height controls initially for hierarchical or unselected taxonomies
+                    $height_disabled = $taxonomy->hierarchical || !$is_selected ? 'disabled' : '';
                 ?>
                 <tr data-name="<?php echo esc_attr( strtolower($taxonomy->label) ); ?>" 
                     data-post-types="<?php echo esc_attr( strtolower(implode(', ', $taxonomy->object_type)) ); ?>"
@@ -219,6 +286,17 @@ class Admin_Options {
                     </td>
                     <td class="column-post_types"><?php echo $post_types; // Already escaped individually ?></td>
                     <td class="column-type"><?php echo esc_html( $type ); ?></td>
+                    <td class="column-height">
+                        <select name="runthings_ttc_height_settings[<?php echo esc_attr($taxonomy->name); ?>][type]" class="height-type-select" <?php echo $height_disabled; ?>>
+                            <option value="auto" <?php selected($height_type, 'auto'); ?>><?php esc_html_e('Auto', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
+                            <option value="full" <?php selected($height_type, 'full'); ?>><?php esc_html_e('Full', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
+                            <option value="custom" <?php selected($height_type, 'custom'); ?>><?php esc_html_e('Custom', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
+                        </select>
+                        <div class="custom-height-input" style="margin-top: 5px; <?php echo $height_type !== 'custom' ? 'display: none;' : ''; ?>">
+                            <input type="number" name="runthings_ttc_height_settings[<?php echo esc_attr($taxonomy->name); ?>][value]" value="<?php echo esc_attr($custom_height); ?>" min="50" max="1000" step="10" <?php echo $height_disabled; ?>>
+                            <span>px</span>
+                        </div>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -253,6 +331,9 @@ class Admin_Options {
                                 <span class="sorting-indicator desc" aria-hidden="true"></span>
                             </span>
                         </a>
+                    </th>
+                    <th scope="col" class="manage-column column-height">
+                        <span><?php esc_html_e('Height', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
                     </th>
                 </tr>
             </tfoot>

@@ -64,6 +64,40 @@
       updateNoItemsVisibility();
     });
 
+    // Height type selection change handler
+    $(".height-type-select").on("change", function () {
+      var $this = $(this);
+      var $row = $this.closest("tr");
+      var $customField = $row.find(".custom-height-input");
+
+      if ($this.val() === "custom") {
+        $customField.show();
+      } else {
+        $customField.hide();
+      }
+    });
+
+    // Taxonomy checkbox change handler - enable/disable height controls
+    $("input[name='runthings_ttc_selected_taxonomies[]']").on(
+      "change",
+      function () {
+        var $this = $(this);
+        var $row = $this.closest("tr");
+        var $heightSelect = $row.find(".height-type-select");
+        var $customHeight = $row.find(".custom-height-input input");
+
+        if ($this.is(":checked") && !$this.is(":disabled")) {
+          // Enable height controls
+          $heightSelect.prop("disabled", false);
+          $customHeight.prop("disabled", false);
+        } else {
+          // Disable height controls
+          $heightSelect.prop("disabled", true);
+          $customHeight.prop("disabled", true);
+        }
+      }
+    );
+
     // Function to update the no-items message visibility
     function updateNoItemsVisibility() {
       var systemVisible = $("#show-system-taxonomies").is(":checked");
@@ -87,6 +121,16 @@
         $(".no-items").hide();
       }
     }
+
+    // Initialize height fields on load
+    $(".height-type-select").each(function () {
+      $(this).trigger("change");
+    });
+
+    // Initialize enabled/disabled state on load
+    $("input[name='runthings_ttc_selected_taxonomies[]']").each(function () {
+      $(this).trigger("change");
+    });
 
     // Initial setup - hide system taxonomies
     $("#show-system-taxonomies").prop("checked", false).trigger("change");

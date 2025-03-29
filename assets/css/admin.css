@@ -48,3 +48,19 @@
   color: #72777c;
   font-style: italic;
 }
+
+/* Height Column */
+#taxonomy-table th.column-height {
+  padding: 0;
+}
+#taxonomy-table th.column-height {
+  padding: 8px;
+}
+.custom-height-input {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.custom-height-input input[type="number"] {
+  width: 70px;
+}
