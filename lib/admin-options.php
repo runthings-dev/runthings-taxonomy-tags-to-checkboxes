@@ -284,12 +284,13 @@ class Admin_Options {
                     }, $taxonomy->object_type);
                     $post_types = implode( ' ', $post_types_array );
                     
-                    // Format taxonomy type with proper abbr for hierarchical
+                    // Format taxonomy type
                     if ($taxonomy->hierarchical) {
                         $type = '<abbr title="' . esc_attr__('Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes') . '">' . 
                                esc_html__('Hierarchical', 'runthings-taxonomy-tags-to-checkboxes') . '</abbr>';
                     } else {
-                        $type = esc_html__('Non-hierarchical (tags UI)', 'runthings-taxonomy-tags-to-checkboxes');
+                        $type = '<abbr title="' . esc_attr__('Uses tags interface by default', 'runthings-taxonomy-tags-to-checkboxes') . '">' . 
+                               esc_html__('Non-hierarchical', 'runthings-taxonomy-tags-to-checkboxes') . '</abbr>';
                     }
                     
                     $disabled = $taxonomy->hierarchical ? 'disabled' : '';
