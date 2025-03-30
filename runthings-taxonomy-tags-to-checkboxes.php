@@ -48,6 +48,23 @@ class Taxonomy_Tags_To_Checkboxes {
     public function __construct() {
         new Admin_Options();
         new Replace_Tags();
+
+        add_filter(
+            'plugin_action_links_' . plugin_basename( __FILE__ ),
+            [ $this, 'add_github_plugin_link' ]
+        );
+    }
+
+    /**
+     * Add a link to the plugin's GitHub repository on the plugins page.
+     *
+     * @param array $links Existing plugin action links.
+     * @return array Modified plugin action links.
+     */
+    public function add_github_plugin_link( $links ) {
+        $github_link = '<a href="https://github.com/runthings-dev/runthings-taxonomy-tags-to-checkboxes" target="_blank">GitHub</a>';
+        $links[] = $github_link;
+        return $links;
     }
 }
 
