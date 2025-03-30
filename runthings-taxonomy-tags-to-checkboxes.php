@@ -38,6 +38,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'RUNTHINGS_TTC_VERSION', '0.1.0' );
+
+define( 'RUNTHINGS_TTC_BASENAME', plugin_basename( __FILE__ ) );
 define( 'RUNTHINGS_TTC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'RUNTHINGS_TTC_URL', plugin_dir_url( __FILE__ ) );
 
@@ -50,7 +52,7 @@ class Taxonomy_Tags_To_Checkboxes {
         new Replace_Tags();
 
         add_filter(
-            'plugin_action_links_' . plugin_basename( __FILE__ ),
+            'plugin_action_links_' . RUNTHINGS_TTC_BASENAME,
             [ $this, 'add_github_plugin_link' ]
         );
     }

@@ -18,6 +18,7 @@ class Admin_Options {
         add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
         add_action( 'admin_init', [ $this, 'register_settings' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
+        add_filter( 'plugin_action_links_' . RUNTHINGS_TTC_BASENAME, [ $this, 'add_settings_plugin_action_link' ] );
     }
 
     /**
@@ -188,8 +189,8 @@ class Admin_Options {
      */
     public function render_taxonomy_checkboxes() {
         $selected_taxonomies = get_option('runthings_ttc_selected_taxonomies', []);
-        $height_settings     = get_option('runthings_ttc_height_settings', []);
-        $show_links          = get_option('runthings_ttc_show_links', []);
+        $height_settings = get_option('runthings_ttc_height_settings', []);
+        $show_links = get_option('runthings_ttc_show_links', []);
         
         if (!is_array($selected_taxonomies)) {
             $selected_taxonomies = [];
@@ -294,7 +295,7 @@ class Admin_Options {
                     }
                     
                     $disabled = $taxonomy->hierarchical ? 'disabled' : '';
-                    $title    = $taxonomy->hierarchical ? 'title="' . esc_attr__( 'Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes' ) . '"' : '';
+                    $title = $taxonomy->hierarchical ? 'title="' . esc_attr__( 'Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes' ) . '"' : '';
                     
                     // Determine if this is a system taxonomy
                     $is_system = false;
@@ -423,8 +424,8 @@ class Admin_Options {
      * @return array Array with userCount and systemCount
      */
     private function get_taxonomy_counts() {
-        $taxonomies   = get_taxonomies( [], 'objects' );
-        $user_count   = 0;
+        $taxonomies = get_taxonomies( [], 'objects' );
+        $user_count = 0;
         $system_count = 0;
         
         foreach ( $taxonomies as $taxonomy ) {
@@ -461,5 +462,23 @@ class Admin_Options {
             'userCount' => $user_count,
             'systemCount' => $system_count
         );
+    }
+
+    /**
+     * Adds a Settings link to the plugin action links.
+     *
+     * @param array $links Current plugin action links.
+     * @return array Modified plugin action links.
+     */
+    public function add_settings_plugin_action_link( $links ) {
+        if ( current_user_can( 'manage_options' ) ) {
+            $settings_link = sprintf(
+                '<a href="%s">%s</a>',
+                esc_url( admin_url( 'options-general.php?page=runthings-taxonomy-options' ) ),
+                esc_html__( 'Settings', 'runthings-taxonomy-tags-to-checkboxes' )
+            );
+            array_unshift( $links, $settings_link );
+        }
+        return $links;
     }
 }
