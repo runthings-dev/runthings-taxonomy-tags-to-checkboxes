@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Plugin Name: Taxonomy Tags to Checkboxes
  * Plugin URI: https://runthings.dev
  * Description: Convert taxonomy tags to checkboxes in the WordPress admin.
@@ -70,7 +70,7 @@ class Taxonomy_Tags_To_Checkboxes {
     }
     
     /**
-     * Enqueue minimal CSS for metaboxes and add our container styles inline
+     * Enqueue styles for the taxonomy metabox
      */
     public function enqueue_metabox_styles() {
         // Register an empty stylesheet
@@ -98,6 +98,13 @@ class Taxonomy_Tags_To_Checkboxes {
         ');
     }
 
+    /**
+     * Remove the default taxonomy metabox
+     *
+     * @param string $post_type The post type
+     * @param WP_Post $post The current post object
+     * @param string $taxonomy The taxonomy name
+     */
     public function remove_default_taxonomy_metabox( $post_type, $post, $taxonomy ) {
         $taxonomy_object = get_taxonomy( $taxonomy );
         if ( in_array( $post_type, $taxonomy_object->object_type, true ) ) {
@@ -105,6 +112,12 @@ class Taxonomy_Tags_To_Checkboxes {
         }
     }
 
+    /**
+     * Add a custom taxonomy metabox with checkboxes
+     *
+     * @param string $post_type The post type
+     * @param string $taxonomy The taxonomy name
+     */
     public function add_taxonomy_metabox( $post_type, $taxonomy ) {
         $taxonomy_object = get_taxonomy( $taxonomy );
         if ( ! in_array( $post_type, $taxonomy_object->object_type, true ) ) {
@@ -123,6 +136,12 @@ class Taxonomy_Tags_To_Checkboxes {
         );
     }
 
+    /**
+     * Render the taxonomy metabox with checkboxes
+     *
+     * @param WP_Post $post The current post object
+     * @param string $taxonomy The taxonomy name
+     */
     public function render_taxonomy_metabox( $post, $taxonomy ) {
         $terms = get_terms( [
             'taxonomy' => $taxonomy,
@@ -133,7 +152,7 @@ class Taxonomy_Tags_To_Checkboxes {
         
         // Get style for the taxonomy container
         $style = $this->get_taxonomy_container_style($taxonomy);
-        
+
         // Check if we should show the edit link
         $show_links = get_option('runthings_ttc_show_links', []);
 
@@ -217,6 +236,12 @@ class Taxonomy_Tags_To_Checkboxes {
         }
     }
 
+    /**
+     * Save the selected terms when the post is saved
+     *
+     * @param int $post_id The post ID
+     * @param string $taxonomy The taxonomy name
+     */
     public function save_taxonomy_metabox( $post_id, $taxonomy ) {
         if ( ! isset( $_POST['checkbox_' . $taxonomy . '_nonce'] ) || ! wp_verify_nonce( $_POST['checkbox_' . $taxonomy . '_nonce'], 'checkbox_' . $taxonomy . '_nonce_action' ) ) {
             return;

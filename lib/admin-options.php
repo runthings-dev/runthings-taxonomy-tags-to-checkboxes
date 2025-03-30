@@ -6,13 +6,23 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * Class Admin_Options
+ * Handles the admin options page and settings.
+ */
 class Admin_Options {
+    /**
+     * Constructor.
+     */
     public function __construct() {
         add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
         add_action( 'admin_init', [ $this, 'register_settings' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
     }
 
+    /**
+     * Adds the admin menu.
+     */
     public function add_admin_menu() {
         add_options_page(
             __( 'Taxonomies', 'runthings-taxonomy-tags-to-checkboxes' ),
@@ -23,6 +33,9 @@ class Admin_Options {
         );
     }
 
+    /**
+     * Renders the options page.
+     */
     public function render_options_page() {
         ?>
         <div class="wrap">
@@ -38,6 +51,9 @@ class Admin_Options {
         <?php
     }
 
+    /**
+     * Registers the settings.
+     */
     public function register_settings() {
         register_setting(
             'runthings_taxonomy_options_group',
@@ -76,6 +92,9 @@ class Admin_Options {
     
     /**
      * Sanitize taxonomy settings
+     *
+     * @param array $input The input array.
+     * @return array The sanitized array.
      */
     public function sanitize_taxonomy_settings($input) {
         if (!is_array($input)) {
@@ -86,6 +105,9 @@ class Admin_Options {
     
     /**
      * Sanitize height settings
+     *
+     * @param array $input The input array.
+     * @return array The sanitized array.
      */
     public function sanitize_height_settings($input) {
         if (!is_array($input)) {
@@ -115,6 +137,9 @@ class Admin_Options {
 
     /**
      * Sanitize show links settings
+     *
+     * @param array $input The input array.
+     * @return array The sanitized array.
      */
     public function sanitize_show_links_settings($input) {
         if (!is_array($input)) {
@@ -123,6 +148,11 @@ class Admin_Options {
         return array_map('sanitize_text_field', $input);
     }
 
+    /**
+     * Enqueue admin scripts
+     *
+     * @param string $hook The current admin page hook.
+     */
     public function enqueue_admin_scripts($hook) {
         if ('settings_page_runthings-taxonomy-options' !== $hook) {
             return;
@@ -153,6 +183,9 @@ class Admin_Options {
         );
     }
 
+    /**
+     * Renders the taxonomy checkboxes.
+     */
     public function render_taxonomy_checkboxes() {
         $selected_taxonomies = get_option('runthings_ttc_selected_taxonomies', []);
         $height_settings     = get_option('runthings_ttc_height_settings', []);
