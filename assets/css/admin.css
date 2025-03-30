@@ -56,7 +56,8 @@
 #taxonomy-table th.column-height {
   padding: 0;
 }
-#taxonomy-table th.column-height {
+#taxonomy-table th.column-height,
+#taxonomy-table th.column-show-link {
   padding: 8px;
 }
 .custom-height-input {
