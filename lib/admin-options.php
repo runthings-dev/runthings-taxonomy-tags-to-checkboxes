@@ -163,7 +163,7 @@ class Admin_Options {
             'runthings-ttc-admin',
             plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/admin.js',
             array('jquery'),
-            '1.0.0',
+            RUNTHINGS_TTC_VERSION,
             true
         );
         
@@ -179,7 +179,7 @@ class Admin_Options {
             'runthings-ttc-admin-styles',
             plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css/admin.css',
             array(),
-            '1.0.0'
+            RUNTHINGS_TTC_VERSION
         );
     }
 
@@ -342,10 +342,10 @@ class Admin_Options {
                 <tr data-name="<?php echo esc_attr( strtolower($taxonomy->label) ); ?>" 
                     data-post-types="<?php echo esc_attr( strtolower(implode(', ', $taxonomy->object_type)) ); ?>"
                     data-type="<?php echo esc_attr( $taxonomy->hierarchical ? '1' : '0' ); ?>"
-                    data-system="<?php echo $is_system ? '1' : '0'; ?>"
-                    class="<?php echo $row_class; ?>">
+                    data-system="<?php echo esc_attr($is_system ? '1' : '0'); ?>"
+                    class="<?php echo esc_attr($row_class); ?>">
                     <th scope="row" class="check-column">
-                        <input type="checkbox" name="runthings_ttc_selected_taxonomies[]" value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php echo $checked; ?> <?php echo $disabled; ?> <?php echo $title; ?>>
+                        <input type="checkbox" name="runthings_ttc_selected_taxonomies[]" value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php echo esc_attr($checked); ?> <?php echo esc_attr($disabled); ?> <?php echo wp_kses_post($title); ?>>
                     </th>
                     <td class="column-name column-primary">
                         <strong><?php echo esc_html( $taxonomy->label ); ?></strong>
@@ -353,21 +353,21 @@ class Admin_Options {
                             <span class="id"><?php echo esc_html( $taxonomy->name ); ?></span>
                         </div>
                     </td>
-                    <td class="column-post_types"><?php echo $post_types; // Already escaped individually ?></td>
-                    <td class="column-type"><?php echo $type; // No escaping needed, we did it above ?></td>
+                    <td class="column-post_types"><?php echo wp_kses($post_types, array('code' => array())); ?></td>
+                    <td class="column-type"><?php echo wp_kses($type, array('abbr' => array('title' => array()))); ?></td>
                     <td class="column-height">
-                        <select name="runthings_ttc_height_settings[<?php echo esc_attr($taxonomy->name); ?>][type]" class="height-type-select" <?php echo $height_disabled; ?>>
+                        <select name="runthings_ttc_height_settings[<?php echo esc_attr($taxonomy->name); ?>][type]" class="height-type-select" <?php echo esc_attr($height_disabled); ?>>
                             <option value="auto" <?php selected($height_type, 'auto'); ?>><?php esc_html_e('Auto', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
                             <option value="full" <?php selected($height_type, 'full'); ?>><?php esc_html_e('Full', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
                             <option value="custom" <?php selected($height_type, 'custom'); ?>><?php esc_html_e('Custom', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
                         </select>
-                        <div class="custom-height-input" style="margin-top: 5px; <?php echo $height_type !== 'custom' ? 'display: none;' : ''; ?>">
-                            <input type="number" name="runthings_ttc_height_settings[<?php echo esc_attr($taxonomy->name); ?>][value]" value="<?php echo esc_attr($custom_height); ?>" min="50" max="1000" step="10" <?php echo $height_disabled; ?>>
+                        <div class="custom-height-input" style="margin-top: 5px; <?php echo esc_attr($height_type !== 'custom' ? 'display: none;' : ''); ?>">
+                            <input type="number" name="runthings_ttc_height_settings[<?php echo esc_attr($taxonomy->name); ?>][value]" value="<?php echo esc_attr($custom_height); ?>" min="50" max="1000" step="10" <?php echo esc_attr($height_disabled); ?>>
                             <span>px</span>
                         </div>
                     </td>
                     <td class="column-show-link">
-                        <input type="checkbox" name="runthings_ttc_show_links[]" value="<?php echo esc_attr($taxonomy->name); ?>" <?php echo $show_link_checked; ?> <?php echo $link_disabled; ?>>
+                        <input type="checkbox" name="runthings_ttc_show_links[]" value="<?php echo esc_attr($taxonomy->name); ?>" <?php echo esc_attr($show_link_checked); ?> <?php echo esc_attr($link_disabled); ?>>
                     </td>
                 </tr>
                 <?php endforeach; ?>

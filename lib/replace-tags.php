@@ -37,7 +37,9 @@ class Replace_Tags {
         // Register an empty stylesheet
         wp_register_style(
             'runthings-ttc-metabox',
-            false
+            false,
+            [],
+            RUNTHINGS_TTC_VERSION
         );
         
         wp_enqueue_style('runthings-ttc-metabox');
@@ -87,7 +89,7 @@ class Replace_Tags {
 
         add_meta_box(
             'checkbox-' . $taxonomy . '-metabox',
-            __( $taxonomy_object->label, 'runthings-taxonomy-tags-to-checkboxes' ),
+            $taxonomy_object->label,
             function ( $post ) use ( $taxonomy ) {
                 $this->render_taxonomy_metabox( $post, $taxonomy );
             },
@@ -121,7 +123,7 @@ class Replace_Tags {
             echo '<div class="taxonomies-container" style="' . esc_attr($style) . '"><ul>';
             foreach ( $terms as $term ) {
                 $checked = in_array( $term->term_id, $post_terms, true ) ? 'checked' : '';
-                echo '<li><label><input type="checkbox" name="checkbox_' . esc_attr( $taxonomy ) . '[]" value="' . esc_attr( $term->term_id ) . '" ' . $checked . '> ' . esc_html( $term->name ) . '</label></li>';
+                echo '<li><label><input type="checkbox" name="checkbox_' . esc_attr( $taxonomy ) . '[]" value="' . esc_attr( $term->term_id ) . '" ' . esc_attr($checked) . '> ' . esc_html( $term->name ) . '</label></li>';
             }
             echo '</ul></div>';
         } else {
@@ -187,10 +189,13 @@ class Replace_Tags {
                 $edit_link = admin_url('edit-tags.php?taxonomy=' . $taxonomy);
                 echo '<div class="taxonomy-edit-link">';
                 echo '<a href="' . esc_url($edit_link) . '" target="_blank">';
-                printf(
-                    /* translators: %s: Taxonomy label */
-                    esc_html__('+ Add / Edit %s', 'runthings-taxonomy-tags-to-checkboxes'),
-                    esc_html($taxonomy_object->labels->name)
+                echo wp_kses(
+                    sprintf(
+                        /* translators: %s: Taxonomy label */
+                        __('+ Add / Edit %s', 'runthings-taxonomy-tags-to-checkboxes'),
+                        esc_html($taxonomy_object->labels->name)
+                    ),
+                    array( 'b' => array(), 'strong' => array() )
                 );
                 echo '</a></div>';
             }
@@ -204,7 +209,11 @@ class Replace_Tags {
      * @param string $taxonomy The taxonomy name
      */
     public function save_taxonomy_metabox( $post_id, $taxonomy ) {
-        if ( ! isset( $_POST['checkbox_' . $taxonomy . '_nonce'] ) || ! wp_verify_nonce( $_POST['checkbox_' . $taxonomy . '_nonce'], 'checkbox_' . $taxonomy . '_nonce_action' ) ) {
+        $nonce_field  = 'checkbox_' . $taxonomy . '_nonce';
+        $nonce_action = 'checkbox_' . $taxonomy . '_nonce_action';
+        
+        if ( ! isset( $_POST[$nonce_field] ) || 
+             ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[$nonce_field] ) ), $nonce_action ) ) {
             return;
         }
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -213,7 +222,7 @@ class Replace_Tags {
         if ( ! current_user_can( 'edit_post', $post_id ) ) {
             return;
         }
-        $term_ids = isset( $_POST['checkbox_' . $taxonomy] ) ? array_map( 'intval', $_POST['checkbox_' . $taxonomy] ) : [];
+        $term_ids = isset( $_POST['checkbox_' . $taxonomy] ) ? array_map( 'intval', wp_unslash( $_POST['checkbox_' . $taxonomy] ) ) : [];
         wp_set_post_terms( $post_id, $term_ids, $taxonomy );
     }
 }
