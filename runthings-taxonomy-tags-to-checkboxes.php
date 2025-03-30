@@ -233,3 +233,32 @@ class Taxonomy_Tags_To_Checkboxes {
 }
 
 new Taxonomy_Tags_To_Checkboxes();
+
+/**
+ * Plugin activation hook
+ */
+function activate_runthings_ttc() {
+    $autoload = false;
+    
+    // Register the settings, but do not autoload
+    add_option( 'runthings_ttc_selected_taxonomies', [], '', $autoload );
+    add_option( 'runthings_ttc_height_settings', [], '', $autoload );
+    add_option( 'runthings_ttc_show_links', [], '', $autoload);
+}
+register_activation_hook( __FILE__, 'RunthingsTaxonomyTagsToCheckboxes\activate_runthings_ttc' );
+
+/**
+ * Plugin uninstall hook
+ */
+function uninstall_runthings_ttc() {
+    // Check if the user has requested to delete all data
+    if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) || WP_UNINSTALL_PLUGIN !== true ) {
+        return;
+    }
+
+    // Delete options
+    delete_option( 'runthings_ttc_selected_taxonomies' );
+    delete_option( 'runthings_ttc_height_settings' );
+    delete_option( 'runthings_ttc_show_links' );
+}
+register_uninstall_hook( __FILE__, 'RunthingsTaxonomyTagsToCheckboxes\uninstall_runthings_ttc' );
