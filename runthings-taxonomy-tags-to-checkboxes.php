@@ -4,7 +4,7 @@
  * Plugin Name: Taxonomy Tags to Checkboxes
  * Plugin URI: https://runthings.dev/wordpress-plugins/taxonomy-tags-to-checkboxes/
  * Description: Convert taxonomy tags to checkboxes in the WordPress admin.
- * Version: 0.1.0
+ * Version: 1.0.0
  * Author: runthingsdev
  * Author URI: https://runthings.dev/
  * License: GPLv3 or later
@@ -37,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'RUNTHINGS_TTC_VERSION', '0.1.0' );
+define( 'RUNTHINGS_TTC_VERSION', '1.0.0' );
 
 define( 'RUNTHINGS_TTC_BASENAME', plugin_basename( __FILE__ ) );
 define( 'RUNTHINGS_TTC_DIR', plugin_dir_path( __FILE__ ) );
