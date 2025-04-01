@@ -60,6 +60,26 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 - Initial release
 
+## Filters
+
+### runthings_ttc_selected_taxonomies
+
+This filter allows developers to modify the array of taxonomies selected for the custom checkbox interface.
+
+#### Usage Example
+
+```php
+add_filter( 'runthings_ttc_selected_taxonomies', function( $selected_taxonomies ) {
+    // Disable the override for the 'category' taxonomy.
+    unset( $selected_taxonomies['category'] );
+    return $selected_taxonomies;
+} );
+```
+
+#### Parameters:
+
+- **`$selected_taxonomies`** (array): An array of taxonomy slugs. Unset an entry to disable the checkbox list override.
+
 ## Additional Notes
 
 Built by Matthew Harris of runthings.dev, copyright 2025.
