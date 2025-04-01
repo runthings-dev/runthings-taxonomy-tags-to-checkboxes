@@ -50,11 +50,11 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 2. Taxonomy settings screen
 
 == Changelog ==
-= 0.1.0 =
+= 1.0.0 =
 * Initial release
 
 == Upgrade Notice ==
-= 0.1.0 =
+= 1.0.0 =
 Initial release.
 
 == License ==
