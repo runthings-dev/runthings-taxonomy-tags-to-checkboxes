@@ -48,7 +48,6 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 1. Example taxonomy with the checklist ui enabled and an edit link
 2. Taxonomy settings screen
-3. Example denied coupon usage due to invalid role.
 
 == Changelog ==
 = 0.1.0 =
