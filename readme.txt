@@ -3,7 +3,7 @@ Contributors: runthingsdev
 Tags: taxonomy, checkboxes, tags, UI, admin
 Requires at least: 6.4
 Tested up to: 6.8
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -50,6 +50,10 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 2. Taxonomy settings screen
 
 == Changelog ==
+
+= 1.0.1 =
+* Bump WordPress tested up to field to support 6.8 branch.
+
 = 1.0.0 =
 * Initial release
 * Works with custom and built-in taxonomies
@@ -68,6 +72,10 @@ For detailed documentation and examples, see the [full documentation on GitHub](
 1. **`$selected_taxonomies`** (`array`): An array of taxonomy slugs. Unset an entry to disable the checkbox list override.
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Bump WordPress tested up to field to support 6.8 branch.
+
 = 1.0.0 =
 Initial release.
 

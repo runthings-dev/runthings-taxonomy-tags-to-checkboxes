@@ -56,6 +56,10 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 ## Changelog
 
+### v1.0.1 - 25th June 2025
+
+- Bump WordPress tested up to field to support 6.8 branch.
+
 ### v1.0.0 - 1st April 2025
 
 - Initial release
