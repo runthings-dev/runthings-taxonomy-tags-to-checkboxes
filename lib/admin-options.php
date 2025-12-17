@@ -220,7 +220,7 @@ class Admin_Options {
             <br class="clear" />
         </div>
 
-        <table class="wp-list-table widefat fixed striped table-view-list" id="taxonomy-table">
+        <table class="widefat fixed striped" id="taxonomy-table">
             <thead>
                 <tr>
                     <th scope="col" class="manage-column column-cb check-column">
@@ -346,7 +346,7 @@ class Admin_Options {
                     data-type="<?php echo esc_attr( $taxonomy->hierarchical ? '1' : '0' ); ?>"
                     data-system="<?php echo esc_attr($is_system ? '1' : '0'); ?>"
                     class="<?php echo esc_attr($row_class); ?>">
-                    <th scope="row" class="check-column">
+                    <th scope="row" class="check-column" data-colname="<?php esc_attr_e('Convert', 'runthings-taxonomy-tags-to-checkboxes'); ?>">
                         <input type="checkbox" name="runthings_ttc_selected_taxonomies[]" value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php echo esc_attr($checked); ?> <?php echo esc_attr($disabled); ?> <?php echo wp_kses_post($title); ?>>
                     </th>
                     <td class="column-name column-primary">
@@ -357,7 +357,7 @@ class Admin_Options {
                     </td>
                     <td class="column-post_types"><?php echo wp_kses($post_types, array('code' => array())); ?></td>
                     <td class="column-type"><?php echo wp_kses($type, array('abbr' => array('title' => array()))); ?></td>
-                    <td class="column-height">
+                    <td class="column-height" data-colname="<?php esc_attr_e('Height', 'runthings-taxonomy-tags-to-checkboxes'); ?>">
                         <select name="runthings_ttc_height_settings[<?php echo esc_attr($taxonomy->name); ?>][type]" class="height-type-select" <?php echo esc_attr($height_disabled); ?>>
                             <option value="auto" <?php selected($height_type, 'auto'); ?>><?php esc_html_e('Auto', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
                             <option value="full" <?php selected($height_type, 'full'); ?>><?php esc_html_e('Full', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
@@ -368,7 +368,7 @@ class Admin_Options {
                             <span>px</span>
                         </div>
                     </td>
-                    <td class="column-show-link">
+                    <td class="column-show-link" data-colname="<?php esc_attr_e('Show Edit Link', 'runthings-taxonomy-tags-to-checkboxes'); ?>">
                         <input type="checkbox" name="runthings_ttc_show_links[]" value="<?php echo esc_attr($taxonomy->name); ?>" <?php echo esc_attr($show_link_checked); ?> <?php echo esc_attr($link_disabled); ?>>
                     </td>
                 </tr>

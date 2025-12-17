@@ -74,3 +74,91 @@
   width: 100px;
   text-align: center;
 }
+
+/* Mobile responsive layout */
+@media screen and (max-width: 782px) {
+  /* Hide table headers on mobile */
+  #taxonomy-table thead,
+  #taxonomy-table tfoot {
+    display: none;
+  }
+
+  /* Stack table cells vertically */
+  #taxonomy-table tbody,
+  #taxonomy-table tbody tr,
+  #taxonomy-table tbody td,
+  #taxonomy-table tbody th {
+    display: block;
+    box-sizing: border-box;
+  }
+
+  /* Card style for each visible row */
+  #taxonomy-table tbody tr {
+    border: 1px solid #c3c4c7;
+    margin-bottom: 10px;
+    background: #fff;
+    padding: 12px;
+    margin: 12px;
+  }
+
+  /* Cell styling */
+  #taxonomy-table tbody td,
+  #taxonomy-table tbody th.check-column {
+    padding: 6px 0;
+    border: none;
+    text-align: left;
+  }
+
+  #taxonomy-table tbody th.check-column {
+    border-right: none;
+  }
+
+  /* Labels for mobile columns */
+  #taxonomy-table tbody td[data-colname]::before,
+  #taxonomy-table tbody th.check-column[data-colname]::before {
+    content: attr(data-colname) ": ";
+    font-weight: 600;
+  }
+
+  #taxonomy-table tbody th.check-column {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+  }
+
+  #taxonomy-table tbody th.check-column input[type="checkbox"] {
+    margin-bottom: 0;
+  }
+
+  /* Height controls inline */
+  #taxonomy-table .column-height {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  #taxonomy-table .height-type-select {
+    min-width: 80px;
+  }
+
+  #taxonomy-table .custom-height-input {
+    margin-top: 0;
+  }
+
+  /* Show link inline */
+  #taxonomy-table .column-show-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+  }
+
+  /* No items row - don't show as card */
+  #taxonomy-table tbody tr.no-items {
+    border: none;
+    padding: 20px;
+    margin: 0;
+  }
+}
