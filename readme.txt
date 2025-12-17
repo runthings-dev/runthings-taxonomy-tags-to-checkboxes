@@ -3,7 +3,7 @@ Contributors: runthingsdev
 Tags: taxonomy, checkboxes, tags, UI, admin
 Requires at least: 6.4
 Tested up to: 6.9
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -51,10 +51,15 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 == Changelog ==
 
-= 1.0.1 =
+= 1.1.0 - 17th December 2025 =
+* Bug fix - Admin options table was not displaying correctly on mobile devices
+* Add fade transition to row actions
+* Bump tested up to 6.9
+
+= 1.0.1 - 25th June 2025 =
 * Bump WordPress tested up to field to support 6.8 branch.
 
-= 1.0.0 =
+= 1.0.0 - 1st April 2025 =
 * Initial release
 * Works with custom and built-in taxonomies
 * Control the height of the outbox
@@ -72,6 +77,9 @@ For detailed documentation and examples, see the [full documentation on GitHub](
 1. **`$selected_taxonomies`** (`array`): An array of taxonomy slugs. Unset an entry to disable the checkbox list override.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Bug fix for admin options table display on mobile devices.
 
 = 1.0.1 =
 Bump WordPress tested up to field to support 6.8 branch.

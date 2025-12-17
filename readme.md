@@ -56,6 +56,12 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 ## Changelog
 
+### v1.1.0 - 17th December 2025
+
+- Bug fix - Admin options table was not displaying correctly on mobile devices
+- Add fade transition to row actions
+- Bump tested up to 6.9
+
 ### v1.0.1 - 25th June 2025
 
 - Bump WordPress tested up to field to support 6.8 branch.
