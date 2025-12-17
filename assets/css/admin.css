@@ -75,6 +75,17 @@
   text-align: center;
 }
 
+/* Row actions fade transition */
+#taxonomy-table .row-actions {
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+}
+
+#taxonomy-table tr:hover .row-actions,
+#taxonomy-table tr:focus-within .row-actions {
+  opacity: 1;
+}
+
 /* Mobile responsive layout */
 @media screen and (max-width: 782px) {
   /* Hide table headers on mobile */
