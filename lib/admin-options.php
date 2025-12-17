@@ -287,7 +287,7 @@ class Admin_Options {
                     
                     // Format taxonomy type
                     if ($taxonomy->hierarchical) {
-                        $type = '<abbr title="' . esc_attr__('Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes') . '">' . 
+                        $type = '<abbr title="' . esc_attr__('Taxonomy already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes') . '">' . 
                                esc_html__('Hierarchical', 'runthings-taxonomy-tags-to-checkboxes') . '</abbr>';
                     } else {
                         $type = '<abbr title="' . esc_attr__('Uses tags interface by default', 'runthings-taxonomy-tags-to-checkboxes') . '">' . 
@@ -295,7 +295,7 @@ class Admin_Options {
                     }
                     
                     $disabled = $taxonomy->hierarchical ? 'disabled' : '';
-                    $title = $taxonomy->hierarchical ? 'title="' . esc_attr__( 'Already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes' ) . '"' : '';
+                    $title = $taxonomy->hierarchical ? 'title="' . esc_attr__( 'Taxonomy already uses checkboxes', 'runthings-taxonomy-tags-to-checkboxes' ) . '"' : '';
                     
                     // Determine if this is a system taxonomy
                     $is_system = false;
