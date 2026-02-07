@@ -1,17 +1,17 @@
-# Copyright (C) 2025 runthingsdev
+# Copyright (C) 2026 runthingsdev
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Taxonomy Tags to Checkboxes 1.1.0\n"
+"Project-Id-Version: Taxonomy Tags to Checkboxes 1.1.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/runthings-taxonomy-tags-to-checkboxes\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-17T11:23:01+00:00\n"
+"POT-Creation-Date: 2026-02-07T11:51:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: runthings-taxonomy-tags-to-checkboxes\n"
 
 #. Plugin Name of the plugin
@@ -141,12 +141,13 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: lib/replace-tags.php:130
+#: lib/replace-tags.php:163
 msgid "No terms available."
 msgstr ""
 
 #. translators: %s: Taxonomy label
-#: lib/replace-tags.php:195
+#: lib/replace-tags.php:228
+#, php-format
 msgid "+ Add / Edit %s"
 msgstr ""
 
