@@ -1,8 +1,9 @@
 # Ignore development files
 .git/
+.github/
 node_modules/
 tests/
-build/
+dist/
 src/
 .distignore
 .gitignore
@@ -11,6 +12,8 @@ build.md
 # Ignore configuration files
 *.yml
 *.lock
+package.json
+package-lock.json
 
 # Ignore build scripts and macOS file system files
 /bin/
