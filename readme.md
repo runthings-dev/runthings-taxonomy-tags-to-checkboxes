@@ -56,6 +56,10 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 ## Changelog
 
+### v1.1.1 - 7th February 2026
+
+- Fix - Prevent duplicate taxonomy panels showing in the block editor when using built-in taxonomies like Tags (thanks @swinggraphics)
+
 ### v1.1.0 - 17th December 2025
 
 - Bug fix - Admin options table was not displaying correctly on mobile devices
