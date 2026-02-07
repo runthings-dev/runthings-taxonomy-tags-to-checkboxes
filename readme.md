@@ -49,10 +49,10 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 ## Screenshots
 
 1. Example taxonomy with the checklist ui enabled and an edit link
-   ![Example taxonomy with the checklist ui enabled and an edit link](screenshot-1.png)
+   ![Example taxonomy with the checklist ui enabled and an edit link](https://raw.githubusercontent.com/runthings-dev/runthings-taxonomy-tags-to-checkboxes/master/.wordpress-org/screenshot-1.png)
 
 2. Taxonomy settings screen
-   ![Taxonomy settings screen](screenshot-2.png)
+   ![Taxonomy settings screen](https://raw.githubusercontent.com/runthings-dev/runthings-taxonomy-tags-to-checkboxes/master/.wordpress-org/screenshot-2.png)
 
 ## Changelog
 
