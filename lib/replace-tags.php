@@ -7,15 +7,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Replace_Tags {
+    /**
+     * @var array Selected taxonomies to convert.
+     */
+    private $selected_taxonomies = [];
+
     public function __construct() {
         // Add front-end styles
         add_action('admin_enqueue_scripts', [$this, 'enqueue_metabox_styles']);
 
-        $selected_taxonomies = get_option( 'runthings_ttc_selected_taxonomies', [] );
+        $this->selected_taxonomies = get_option( 'runthings_ttc_selected_taxonomies', [] );
 
-        $selected_taxonomies = apply_filters( 'runthings_ttc_selected_taxonomies', $selected_taxonomies );
+        $this->selected_taxonomies = apply_filters( 'runthings_ttc_selected_taxonomies', $this->selected_taxonomies );
 
-        foreach ( $selected_taxonomies as $taxonomy ) {
+        // Remove the default Gutenberg taxonomy panel for selected taxonomies
+        add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_block_editor_assets' ] );
+
+        foreach ( $this->selected_taxonomies as $taxonomy ) {
             add_action( 'add_meta_boxes', function ( $post_type, $post ) use ( $taxonomy ) {
                 $this->remove_default_taxonomy_metabox( $post_type, $post, $taxonomy );
             }, 10, 2 );
@@ -28,6 +36,31 @@ class Replace_Tags {
                 $this->save_taxonomy_metabox( $post_id, $taxonomy );
             });
         }
+    }
+
+    /**
+     * Enqueue block editor assets to remove default taxonomy panels in Gutenberg
+     */
+    public function enqueue_block_editor_assets() {
+        if ( empty( $this->selected_taxonomies ) ) {
+            return;
+        }
+
+        wp_enqueue_script(
+            'runthings-ttc-editor',
+            RUNTHINGS_TTC_URL . 'assets/js/editor.js',
+            [ 'wp-data', 'wp-dom-ready', 'wp-editor' ],
+            RUNTHINGS_TTC_VERSION,
+            true
+        );
+
+        wp_localize_script(
+            'runthings-ttc-editor',
+            'runthingsTtcEditor',
+            [
+                'taxonomies' => array_values( $this->selected_taxonomies ),
+            ]
+        );
     }
     
     /**
