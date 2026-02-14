@@ -17,8 +17,14 @@ class Replace_Tags {
         add_action('admin_enqueue_scripts', [$this, 'enqueue_metabox_styles']);
 
         $this->selected_taxonomies = get_option( 'runthings_ttc_selected_taxonomies', [] );
+        if ( ! is_array( $this->selected_taxonomies ) ) {
+            $this->selected_taxonomies = [];
+        }
 
         $this->selected_taxonomies = apply_filters( 'runthings_ttc_selected_taxonomies', $this->selected_taxonomies );
+        if ( ! is_array( $this->selected_taxonomies ) ) {
+            $this->selected_taxonomies = [];
+        }
 
         // Remove the default Gutenberg taxonomy panel for selected taxonomies
         add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_block_editor_assets' ] );
@@ -148,6 +154,9 @@ class Replace_Tags {
         ] );
 
         $post_terms = wp_get_post_terms( $post->ID, $taxonomy, [ 'fields' => 'ids' ] );
+        if ( is_wp_error( $post_terms ) ) {
+            $post_terms = [];
+        }
         
         // Get style for the taxonomy container
         $style = $this->get_taxonomy_container_style($taxonomy);
