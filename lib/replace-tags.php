@@ -176,11 +176,12 @@ class Replace_Tags {
      * @return string CSS style string
      */
     private function get_taxonomy_container_style($taxonomy) {
-        $style = '';
-        
         // Get height settings
         $height_settings = get_option('runthings_ttc_height_settings', []);
         $height_type     = isset($height_settings[$taxonomy]['type']) ? $height_settings[$taxonomy]['type'] : '';
+
+        // All modes get a min-height to avoid looking odd with few items
+        $style = 'min-height: 42px;';
 
         // Apply height setting based on configuration
         // auto/default: 200px max-height matching WP core category panel behavior
