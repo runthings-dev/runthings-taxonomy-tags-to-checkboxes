@@ -359,7 +359,7 @@ class Admin_Options {
                     <td class="column-type"><?php echo wp_kses($type, array('abbr' => array('title' => array()))); ?></td>
                     <td class="column-height" data-colname="<?php esc_attr_e('Height', 'runthings-taxonomy-tags-to-checkboxes'); ?>">
                         <select name="runthings_ttc_height_settings[<?php echo esc_attr($taxonomy->name); ?>][type]" class="height-type-select" <?php echo esc_attr($height_disabled); ?>>
-                            <option value="auto" <?php selected($height_type, 'auto'); ?>><?php esc_html_e('Auto', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
+                            <option value="auto" <?php selected($height_type, 'auto'); ?>><?php esc_html_e('Default', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
                             <option value="full" <?php selected($height_type, 'full'); ?>><?php esc_html_e('Full', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
                             <option value="custom" <?php selected($height_type, 'custom'); ?>><?php esc_html_e('Custom', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
                         </select>
