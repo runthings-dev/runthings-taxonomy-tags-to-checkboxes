@@ -181,28 +181,26 @@ class Replace_Tags {
         // Get height settings
         $height_settings = get_option('runthings_ttc_height_settings', []);
         $height_type     = isset($height_settings[$taxonomy]['type']) ? $height_settings[$taxonomy]['type'] : '';
-        
+
         // Apply height setting based on configuration
+        // auto/default: 200px max-height matching WP core category panel behavior
+        // full: explicitly remove any max-height constraint
+        // custom: set a specific max-height in pixels
         switch ($height_type) {
-            case 'auto':
-                $style .= 'max-height: auto;';
-                break;
-                
             case 'full':
                 $style .= 'max-height: none;';
                 break;
-                
+
             case 'custom':
                 if (isset($height_settings[$taxonomy]['value'])) {
                     $custom_height = absint($height_settings[$taxonomy]['value']);
                     $style .= 'max-height: ' . $custom_height . 'px;';
-                } else {
-                    $style .= 'max-height: auto;';
                 }
                 break;
-                
+
+            case 'auto':
             default:
-                $style .= 'max-height: auto;';
+                $style .= 'max-height: 200px;';
                 break;
         }
         
