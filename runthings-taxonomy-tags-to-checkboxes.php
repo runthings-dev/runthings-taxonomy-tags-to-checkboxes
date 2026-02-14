@@ -92,11 +92,6 @@ register_activation_hook( __FILE__, 'RunthingsTaxonomyTagsToCheckboxes\activate_
  * Plugin uninstall hook
  */
 function uninstall_runthings_ttc() {
-    // Check if the user has requested to delete all data
-    if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) || WP_UNINSTALL_PLUGIN !== true ) {
-        return;
-    }
-
     // Delete options
     delete_option( 'runthings_ttc_selected_taxonomies' );
     delete_option( 'runthings_ttc_height_settings' );
