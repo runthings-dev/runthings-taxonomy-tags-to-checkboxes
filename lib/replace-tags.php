@@ -103,6 +103,9 @@ class Replace_Tags {
      */
     public function remove_default_taxonomy_metabox( $post_type, $post, $taxonomy ) {
         $taxonomy_object = get_taxonomy( $taxonomy );
+        if ( ! $taxonomy_object ) {
+            return;
+        }
         if ( in_array( $post_type, $taxonomy_object->object_type, true ) ) {
             remove_meta_box( 'tagsdiv-' . $taxonomy, $post_type, 'side' );
         }
@@ -116,7 +119,7 @@ class Replace_Tags {
      */
     public function add_taxonomy_metabox( $post_type, $taxonomy ) {
         $taxonomy_object = get_taxonomy( $taxonomy );
-        if ( ! in_array( $post_type, $taxonomy_object->object_type, true ) ) {
+        if ( ! $taxonomy_object || ! in_array( $post_type, $taxonomy_object->object_type, true ) ) {
             return;
         }
 
