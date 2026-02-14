@@ -51,6 +51,12 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 == Changelog ==
 
+= 1.2.0 - 14th February 2026 =
+* Improvement - Rename "Auto" height option to "Default" for clarity
+* Improvement - Consistent minimum height applied to all taxonomy panels
+* Fix - Fatal error when a taxonomy has been deleted after being configured in the plugin (thanks @mikenucleodigital)
+* Fix - Plugin cleanup on uninstall now works correctly
+
 = 1.1.1 - 7th February 2026 =
 * Fix - Prevent duplicate taxonomy panels showing in the block editor when using built-in taxonomies like Tags (thanks @swinggraphics)
 
@@ -81,14 +87,14 @@ For detailed documentation and examples, see the [full documentation on GitHub](
 
 == Upgrade Notice ==
 
+= 1.2.0 =
+Fixes fatal error when a configured taxonomy is deleted, improves panel height options.
+
 = 1.1.1 =
 Fix duplicate taxonomy panels in the block editor for built-in taxonomies.
 
 = 1.1.0 =
 Bug fix for admin options table display on mobile devices.
-
-= 1.0.1 =
-Bump WordPress tested up to field to support 6.8 branch.
 
 == License ==
 

@@ -56,6 +56,13 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 ## Changelog
 
+### v1.2.0 - 14th February 2026
+
+- Improvement - Rename "Auto" height option to "Default" for clarity
+- Improvement - Consistent minimum height applied to all taxonomy panels
+- Fix - Fatal error when a taxonomy has been deleted after being configured in the plugin (thanks @mikenucleodigital)
+- Fix - Plugin cleanup on uninstall now works correctly
+
 ### v1.1.1 - 7th February 2026
 
 - Fix - Prevent duplicate taxonomy panels showing in the block editor when using built-in taxonomies like Tags (thanks @swinggraphics)
