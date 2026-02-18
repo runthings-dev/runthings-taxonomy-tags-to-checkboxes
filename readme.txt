@@ -51,6 +51,9 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 == Changelog ==
 
+= 1.3.0 - 18th February 2026 =
+* Feature - Add Gutenberg (block editor) support for taxonomy meta boxes instead of using compatibility mode
+
 = 1.2.0 - 14th February 2026 =
 * Improvement - Rename "Auto" height option to "Default" for clarity
 * Improvement - Consistent minimum height applied to all taxonomy panels
@@ -87,14 +90,14 @@ For detailed documentation and examples, see the [full documentation on GitHub](
 
 == Upgrade Notice ==
 
+= 1.3.0 =
+Adds Gutenberg support for taxonomy meta boxes.
+
 = 1.2.0 =
 Fixes fatal error when a configured taxonomy is deleted, improves panel height options.
 
 = 1.1.1 =
 Fix duplicate taxonomy panels in the block editor for built-in taxonomies.
-
-= 1.1.0 =
-Bug fix for admin options table display on mobile devices.
 
 == License ==
 

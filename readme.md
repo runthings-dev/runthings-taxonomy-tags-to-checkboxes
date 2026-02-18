@@ -56,6 +56,10 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 ## Changelog
 
+### v1.3.0 - 18th February 2026
+
+- Feature - Add Gutenberg (block editor) support for taxonomy meta boxes instead of using compatibility mode
+
 ### v1.2.0 - 14th February 2026
 
 - Improvement - Rename "Auto" height option to "Default" for clarity
