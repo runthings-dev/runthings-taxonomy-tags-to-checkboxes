@@ -32,11 +32,10 @@ class Replace_Tags {
         foreach ( $this->selected_taxonomies as $taxonomy ) {
             add_action( 'add_meta_boxes', function ( $post_type, $post ) use ( $taxonomy ) {
                 $this->remove_default_taxonomy_metabox( $post_type, $post, $taxonomy );
+                if ( $this->should_use_classic_metabox( $post_type, $post ) ) {
+                    $this->add_taxonomy_metabox( $post_type, $taxonomy );
+                }
             }, 10, 2 );
-
-            add_action( 'add_meta_boxes', function ( $post_type ) use ( $taxonomy ) {
-                $this->add_taxonomy_metabox( $post_type, $taxonomy );
-            });
 
             add_action( 'save_post', function ( $post_id ) use ( $taxonomy ) {
                 $this->save_taxonomy_metabox( $post_id, $taxonomy );
@@ -45,27 +44,67 @@ class Replace_Tags {
     }
 
     /**
-     * Enqueue block editor assets to remove default taxonomy panels in Gutenberg
+     * Enqueue block editor assets — native Gutenberg sidebar panels
      */
     public function enqueue_block_editor_assets() {
         if ( empty( $this->selected_taxonomies ) ) {
             return;
         }
 
+        $asset_file = RUNTHINGS_TTC_DIR . 'build/index.asset.php';
+        if ( ! file_exists( $asset_file ) ) {
+            return;
+        }
+
+        $asset = include $asset_file;
+
         wp_enqueue_script(
             'runthings-ttc-editor',
-            RUNTHINGS_TTC_URL . 'assets/js/editor.js',
-            [ 'wp-data', 'wp-dom-ready', 'wp-editor' ],
-            RUNTHINGS_TTC_VERSION,
+            RUNTHINGS_TTC_URL . 'build/index.js',
+            $asset['dependencies'],
+            $asset['version'],
             true
         );
 
-        wp_localize_script(
+        $height_settings = get_option( 'runthings_ttc_height_settings', [] );
+        $show_links      = get_option( 'runthings_ttc_show_links', [] );
+
+        $taxonomy_configs = [];
+        foreach ( $this->selected_taxonomies as $taxonomy ) {
+            $taxonomy_object = get_taxonomy( $taxonomy );
+            if ( ! $taxonomy_object || ! $taxonomy_object->show_in_rest ) {
+                continue;
+            }
+
+            $height_type = isset( $height_settings[ $taxonomy ]['type'] ) ? $height_settings[ $taxonomy ]['type'] : 'auto';
+            $max_height  = 'auto';
+            if ( 'full' === $height_type ) {
+                $max_height = 'none';
+            } elseif ( 'custom' === $height_type && isset( $height_settings[ $taxonomy ]['value'] ) ) {
+                $max_height = absint( $height_settings[ $taxonomy ]['value'] ) . 'px';
+            }
+
+            $show_edit_link = is_array( $show_links ) && in_array( $taxonomy, $show_links, true );
+            $edit_url       = '';
+            if ( $show_edit_link && current_user_can( $taxonomy_object->cap->manage_terms ) ) {
+                $edit_url = admin_url( 'edit-tags.php?taxonomy=' . $taxonomy );
+            }
+
+            $taxonomy_configs[] = [
+                'slug'         => $taxonomy,
+                'restBase'     => $taxonomy_object->rest_base ?: $taxonomy,
+                'label'        => $taxonomy_object->label,
+                'postTypes'    => array_values( $taxonomy_object->object_type ),
+                'maxHeight'    => $max_height,
+                'showEditLink' => $show_edit_link && ! empty( $edit_url ),
+                'editUrl'      => $edit_url,
+            ];
+        }
+
+        wp_add_inline_script(
             'runthings-ttc-editor',
-            'runthingsTtcEditor',
-            [
-                'taxonomies' => array_values( $this->selected_taxonomies ),
-            ]
+            'window.runthingsTtcEditor = ' . wp_json_encode( [ 'taxonomies' => $taxonomy_configs ] ) . ';',
+            'before'
         );
     }
     
@@ -115,6 +154,25 @@ class Replace_Tags {
         if ( in_array( $post_type, $taxonomy_object->object_type, true ) ) {
             remove_meta_box( 'tagsdiv-' . $taxonomy, $post_type, 'side' );
         }
+    }
+
+    /**
+     * Determines whether the custom classic metabox should be used.
+     *
+     * @param string   $post_type The post type.
+     * @param \WP_Post $post      The current post object.
+     * @return bool
+     */
+    private function should_use_classic_metabox( $post_type, $post ) {
+        if ( function_exists( 'use_block_editor_for_post' ) && $post instanceof \WP_Post ) {
+            return ! use_block_editor_for_post( $post );
+        }
+
+        if ( function_exists( 'use_block_editor_for_post_type' ) ) {
+            return ! use_block_editor_for_post_type( $post_type );
+        }
+
+        return true;
     }
 
     /**
@@ -270,4 +328,3 @@ class Replace_Tags {
         wp_set_post_terms( $post_id, $term_ids, $taxonomy );
     }
 }
-

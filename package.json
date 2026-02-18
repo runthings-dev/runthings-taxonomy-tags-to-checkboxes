@@ -1,0 +1,18 @@
+{
+  "name": "runthings-taxonomy-tags-to-checkboxes",
+  "version": "1.1.0",
+  "description": "Convert taxonomy tags to checkboxes in the WordPress admin",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "check-engines": "wp-scripts check-engines",
+    "check-licenses": "wp-scripts check-licenses",
+    "lint:js": "wp-scripts lint-js"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.0.0"
+  },
+  "author": "runthingsdev",
+  "license": "GPL-3.0-or-later",
+  "private": true
+}
