@@ -11,6 +11,14 @@ class Replace_Tags {
      * @var array Selected taxonomies to convert.
      */
     private $selected_taxonomies = [];
+    /**
+     * @var array Taxonomies where inline term creation is enabled.
+     */
+    private $allow_term_create = [];
+    /**
+     * @var array Taxonomies where edit link is enabled.
+     */
+    private $show_edit_links = [];
 
     public function __construct() {
         // Add front-end styles
@@ -26,6 +34,18 @@ class Replace_Tags {
             $this->selected_taxonomies = [];
         }
 
+        $this->allow_term_create = get_option( 'runthings_ttc_allow_term_create', [] );
+        if ( ! is_array( $this->allow_term_create ) ) {
+            $this->allow_term_create = [];
+        }
+
+        $this->show_edit_links = get_option( 'runthings_ttc_show_links', [] );
+        if ( ! is_array( $this->show_edit_links ) ) {
+            $this->show_edit_links = [];
+        }
+
+        add_action( 'admin_init', [ $this, 'register_inline_create_ajax_hooks' ] );
+
         // Remove the default Gutenberg taxonomy panel for selected taxonomies
         add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_block_editor_assets' ] );
 
@@ -40,6 +60,28 @@ class Replace_Tags {
             add_action( 'save_post', function ( $post_id ) use ( $taxonomy ) {
                 $this->save_taxonomy_metabox( $post_id, $taxonomy );
             });
+        }
+    }
+
+    /**
+     * Register per-taxonomy add-term AJAX hooks when inline create is enabled.
+     */
+    public function register_inline_create_ajax_hooks() {
+        if ( ! function_exists( '_wp_ajax_add_hierarchical_term' ) ) {
+            return;
+        }
+
+        foreach ( $this->allow_term_create as $taxonomy ) {
+            if ( ! in_array( $taxonomy, $this->selected_taxonomies, true ) ) {
+                continue;
+            }
+
+            $taxonomy_object = get_taxonomy( $taxonomy );
+            if ( ! $taxonomy_object ) {
+                continue;
+            }
+
+            add_action( 'wp_ajax_add-' . $taxonomy, '_wp_ajax_add_hierarchical_term' );
         }
     }
 
@@ -67,7 +109,8 @@ class Replace_Tags {
         );
 
         $height_settings = get_option( 'runthings_ttc_height_settings', [] );
-        $show_links      = get_option( 'runthings_ttc_show_links', [] );
+        $show_links      = $this->show_edit_links;
+        $allow_create    = $this->allow_term_create;
 
         $taxonomy_configs = [];
         foreach ( $this->selected_taxonomies as $taxonomy ) {
@@ -85,6 +128,8 @@ class Replace_Tags {
             }
 
             $show_edit_link = is_array( $show_links ) && in_array( $taxonomy, $show_links, true );
+            $allow_inline_add = is_array( $allow_create ) && in_array( $taxonomy, $allow_create, true );
+            $can_create_terms = $allow_inline_add && current_user_can( $taxonomy_object->cap->edit_terms );
             $edit_url       = '';
             if ( $show_edit_link && current_user_can( $taxonomy_object->cap->manage_terms ) ) {
                 $edit_url = admin_url( 'edit-tags.php?taxonomy=' . $taxonomy );
@@ -98,6 +143,9 @@ class Replace_Tags {
                 'maxHeight'    => $max_height,
                 'showEditLink' => $show_edit_link && ! empty( $edit_url ),
                 'editUrl'      => $edit_url,
+                'allowInlineAdd' => $allow_inline_add,
+                'canCreateTerms' => $can_create_terms,
+                'editLinkLabel' => $this->get_edit_link_label( $taxonomy_object, $can_create_terms ),
             ];
         }
 
@@ -111,32 +159,32 @@ class Replace_Tags {
     /**
      * Enqueue styles for the taxonomy metabox
      */
-    public function enqueue_metabox_styles() {
-        // Register an empty stylesheet
-        wp_register_style(
-            'runthings-ttc-metabox',
-            false,
-            [],
+    public function enqueue_metabox_styles( $hook ) {
+        if ( ! in_array( $hook, [ 'post.php', 'post-new.php' ], true ) ) {
+            return;
+        }
+
+        wp_enqueue_style(
+            'runthings-ttc-classic-metabox',
+            RUNTHINGS_TTC_URL . 'assets/css/classic-metabox.css',
+            [ 'dashicons' ],
             RUNTHINGS_TTC_VERSION
         );
-        
-        wp_enqueue_style('runthings-ttc-metabox');
-        
-        // Add styles inline
-        wp_add_inline_style('runthings-ttc-metabox', '
-            .taxonomies-container {
-                overflow-y: auto;
-                padding: 0 0.9em;
-                border: 1px solid #ccc;
-                margin-top: 1em;
-            }
-            .taxonomy-edit-link {
-                margin-top: 1em;
-                }
-            .taxonomy-edit-link a {
-                font-weight: 600;
-            }
-        ');
+
+        $inline_add_taxonomies = array_values(
+            array_intersect( $this->selected_taxonomies, $this->allow_term_create )
+        );
+        if ( empty( $inline_add_taxonomies ) ) {
+            return;
+        }
+
+        wp_enqueue_script(
+            'runthings-ttc-classic-metabox',
+            RUNTHINGS_TTC_URL . 'assets/js/classic-metabox.js',
+            [ 'jquery' ],
+            RUNTHINGS_TTC_VERSION,
+            true
+        );
     }
 
     /**
@@ -206,37 +254,122 @@ class Replace_Tags {
      * @param string $taxonomy The taxonomy name
      */
     public function render_taxonomy_metabox( $post, $taxonomy ) {
-        $terms = get_terms( [
-            'taxonomy' => $taxonomy,
-            'hide_empty' => false,
-        ] );
-
-        $post_terms = wp_get_post_terms( $post->ID, $taxonomy, [ 'fields' => 'ids' ] );
-        if ( is_wp_error( $post_terms ) ) {
-            $post_terms = [];
+        $taxonomy_object = get_taxonomy( $taxonomy );
+        if ( ! $taxonomy_object ) {
+            return;
         }
-        
-        // Get style for the taxonomy container
-        $style = $this->get_taxonomy_container_style($taxonomy);
 
-        // Check if we should show the edit link
-        $show_links = get_option('runthings_ttc_show_links', []);
+        $style = $this->get_taxonomy_container_style( $taxonomy );
+        $allow_inline_add = $this->is_inline_add_enabled( $taxonomy, $taxonomy_object );
 
-        if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
-            echo '<div class="taxonomies-container" style="' . esc_attr($style) . '"><ul>';
-            foreach ( $terms as $term ) {
-                $checked = in_array( $term->term_id, $post_terms, true ) ? 'checked' : '';
-                echo '<li><label><input type="checkbox" name="checkbox_' . esc_attr( $taxonomy ) . '[]" value="' . esc_attr( $term->term_id ) . '" ' . esc_attr($checked) . '> ' . esc_html( $term->name ) . '</label></li>';
-            }
-            echo '</ul></div>';
+        echo '<div id="taxonomy-' . esc_attr( $taxonomy ) . '" class="categorydiv">';
+        echo '<div class="taxonomies-container tabs-panel" id="' . esc_attr( $taxonomy ) . '-all" style="' . esc_attr( $style ) . '">';
+
+        if ( 'category' === $taxonomy ) {
+            echo "<input type='hidden' name='post_category[]' value='0' />";
         } else {
-            echo esc_html__( 'No terms available.', 'runthings-taxonomy-tags-to-checkboxes' );
+            echo "<input type='hidden' name='tax_input[" . esc_attr( $taxonomy ) . "][]' value='0' />";
         }
-        
-        // Output the edit taxonomy link
-        $this->maybe_output_edit_taxonomy_link($taxonomy, $show_links);
-        
+
+        $sortable_attr = $allow_inline_add ? ' data-runthings-ttc-sortable="1"' : '';
+        echo '<ul id="' . esc_attr( $taxonomy ) . 'checklist" data-wp-lists="list:' . esc_attr( $taxonomy ) . '"' . $sortable_attr . ' class="categorychecklist form-no-clear">';
+        wp_terms_checklist(
+            $post->ID,
+            [
+                'taxonomy' => $taxonomy,
+            ]
+        );
+        echo '</ul>';
+        echo '</div>';
+
+        $this->maybe_output_add_term_controls( $taxonomy, $taxonomy_object, $allow_inline_add );
+        $this->maybe_output_edit_taxonomy_link( $taxonomy, $taxonomy_object, $allow_inline_add );
+        echo '</div>';
+
         wp_nonce_field( 'checkbox_' . $taxonomy . '_nonce_action', 'checkbox_' . $taxonomy . '_nonce' );
+    }
+
+    /**
+     * Determine whether inline term creation is enabled for a taxonomy.
+     *
+     * @param string       $taxonomy        Taxonomy slug.
+     * @param \WP_Taxonomy $taxonomy_object Taxonomy object.
+     * @return bool
+     */
+    private function is_inline_add_enabled( $taxonomy, $taxonomy_object ) {
+        return is_array( $this->allow_term_create ) &&
+            in_array( $taxonomy, $this->allow_term_create, true ) &&
+            current_user_can( $taxonomy_object->cap->edit_terms );
+    }
+
+    /**
+     * Determine whether edit link is enabled for a taxonomy.
+     *
+     * @param string $taxonomy Taxonomy slug.
+     * @return bool
+     */
+    private function is_edit_link_enabled( $taxonomy ) {
+        return is_array( $this->show_edit_links ) &&
+            in_array( $taxonomy, $this->show_edit_links, true );
+    }
+
+    /**
+     * Build the edit-link label text with the same four variants used in Gutenberg.
+     *
+     * @param \WP_Taxonomy $taxonomy_object   Taxonomy object.
+     * @param bool         $allow_inline_add  Whether inline add controls are enabled.
+     * @return string
+     */
+    private function get_edit_link_label( $taxonomy_object, $allow_inline_add ) {
+        if ( $allow_inline_add ) {
+            return $taxonomy_object->label
+                ? sprintf(
+                    /* translators: %s: taxonomy label */
+                    __( 'Edit %s', 'runthings-taxonomy-tags-to-checkboxes' ),
+                    $taxonomy_object->label
+                )
+                : __( 'Edit', 'runthings-taxonomy-tags-to-checkboxes' );
+        }
+
+        return $taxonomy_object->label
+            ? sprintf(
+                /* translators: %s: taxonomy label */
+                __( 'Add / Edit %s', 'runthings-taxonomy-tags-to-checkboxes' ),
+                $taxonomy_object->label
+            )
+            : __( 'Add / Edit', 'runthings-taxonomy-tags-to-checkboxes' );
+    }
+
+    /**
+     * Output core-style inline add controls when enabled for this taxonomy.
+     *
+     * @param string       $taxonomy        Taxonomy slug.
+     * @param \WP_Taxonomy $taxonomy_object Taxonomy object.
+     * @param bool         $allow_inline_add Whether inline add controls are enabled.
+     */
+    private function maybe_output_add_term_controls( $taxonomy, $taxonomy_object, $allow_inline_add ) {
+        if ( ! $allow_inline_add ) {
+            return;
+        }
+
+        $add_label = sprintf(
+            /* translators: %s: Add new taxonomy item label. */
+            __( '+ %s', 'runthings-taxonomy-tags-to-checkboxes' ),
+            $taxonomy_object->labels->add_new_item
+        );
+
+        echo '<div id="' . esc_attr( $taxonomy ) . '-adder" class="wp-hidden-children">';
+        echo '<a id="' . esc_attr( $taxonomy ) . '-add-toggle" href="#' . esc_attr( $taxonomy ) . '-add" class="hide-if-no-js taxonomy-add-new">';
+        echo esc_html( $add_label );
+        echo '</a>';
+        echo '<p id="' . esc_attr( $taxonomy ) . '-add" class="category-add wp-hidden-child">';
+        echo '<label class="screen-reader-text" for="new' . esc_attr( $taxonomy ) . '">' . esc_html( $taxonomy_object->labels->add_new_item ) . '</label>';
+        echo '<input type="text" name="new' . esc_attr( $taxonomy ) . '" id="new' . esc_attr( $taxonomy ) . '" class="form-required form-input-tip" value="' . esc_attr( $taxonomy_object->labels->new_item_name ) . '" aria-required="true" />';
+        echo '<input type="button" id="' . esc_attr( $taxonomy ) . '-add-submit" data-wp-lists="add:' . esc_attr( $taxonomy ) . 'checklist:' . esc_attr( $taxonomy ) . '-add" class="button category-add-submit" value="' . esc_attr( $taxonomy_object->labels->add_new_item ) . '" />';
+        wp_nonce_field( 'add-' . $taxonomy, '_ajax_nonce-add-' . $taxonomy, false );
+        echo '<span id="' . esc_attr( $taxonomy ) . '-ajax-response"></span>';
+        echo '</p>';
+        echo '</div>';
     }
     
     /**
@@ -279,29 +412,28 @@ class Replace_Tags {
     }
 
     /**
-     * Outputs the "Add / Edit Taxonomy" link if enabled and user has permissions
+     * Outputs the taxonomy edit link when enabled and user has permissions.
      *
-     * @param string $taxonomy The taxonomy name
-     * @param array $show_links Array of taxonomies where the link should be shown
+     * @param string       $taxonomy         Taxonomy slug.
+     * @param \WP_Taxonomy $taxonomy_object  Taxonomy object.
+     * @param bool         $allow_inline_add Whether inline add controls are enabled.
      */
-    private function maybe_output_edit_taxonomy_link($taxonomy, $show_links) {
-        if (is_array($show_links) && in_array($taxonomy, $show_links, true)) {
-            $taxonomy_object = get_taxonomy($taxonomy);
-            if ($taxonomy_object && current_user_can($taxonomy_object->cap->manage_terms)) {
-                $edit_link = admin_url('edit-tags.php?taxonomy=' . $taxonomy);
-                echo '<div class="taxonomy-edit-link">';
-                echo '<a href="' . esc_url($edit_link) . '" target="_blank">';
-                echo wp_kses(
-                    sprintf(
-                        /* translators: %s: Taxonomy label */
-                        __('+ Add / Edit %s', 'runthings-taxonomy-tags-to-checkboxes'),
-                        esc_html($taxonomy_object->labels->name)
-                    ),
-                    array( 'b' => array(), 'strong' => array() )
-                );
-                echo '</a></div>';
-            }
+    private function maybe_output_edit_taxonomy_link( $taxonomy, $taxonomy_object, $allow_inline_add ) {
+        if (
+            ! $this->is_edit_link_enabled( $taxonomy ) ||
+            ! current_user_can( $taxonomy_object->cap->manage_terms )
+        ) {
+            return;
         }
+
+        $edit_link = admin_url( 'edit-tags.php?taxonomy=' . $taxonomy );
+        $label = $this->get_edit_link_label( $taxonomy_object, $allow_inline_add );
+        echo '<div class="taxonomy-edit-link">';
+        echo '<a href="' . esc_url( $edit_link ) . '" target="_blank" rel="noopener noreferrer">';
+        echo esc_html( $label );
+        echo '<span class="dashicons dashicons-external" aria-hidden="true"></span>';
+        echo '</a>';
+        echo '</div>';
     }
 
     /**
@@ -324,7 +456,16 @@ class Replace_Tags {
         if ( ! current_user_can( 'edit_post', $post_id ) ) {
             return;
         }
-        $term_ids = isset( $_POST['checkbox_' . $taxonomy] ) ? array_map( 'intval', wp_unslash( $_POST['checkbox_' . $taxonomy] ) ) : [];
+        $term_ids = [];
+        if ( isset( $_POST['tax_input'][ $taxonomy ] ) && is_array( $_POST['tax_input'][ $taxonomy ] ) ) {
+            $term_ids = array_map( 'intval', wp_unslash( $_POST['tax_input'][ $taxonomy ] ) );
+        } elseif ( isset( $_POST['checkbox_' . $taxonomy] ) ) {
+            $term_ids = array_map( 'intval', wp_unslash( $_POST['checkbox_' . $taxonomy] ) );
+        }
+        $term_ids = array_values( array_filter( $term_ids, static function( $term_id ) {
+            return $term_id > 0;
+        } ) );
+
         wp_set_post_terms( $post_id, $term_ids, $taxonomy );
     }
 }

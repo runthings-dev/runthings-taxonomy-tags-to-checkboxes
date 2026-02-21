@@ -1,14 +1,23 @@
 /**
  * Native Gutenberg taxonomy panel with checkboxes.
  */
-import { CheckboxControl, ExternalLink, Spinner } from '@wordpress/components';
+import {
+	Button,
+	CheckboxControl,
+	ExternalLink,
+	Flex,
+	FlexItem,
+	Spinner,
+	TextControl,
+} from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	PluginDocumentSettingPanel,
 	store as editorStore,
 } from '@wordpress/editor';
-import { __, sprintf } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 export default function TtcTaxonomyPanel( { taxonomy } ) {
 	const {
@@ -19,7 +28,12 @@ export default function TtcTaxonomyPanel( { taxonomy } ) {
 		maxHeight,
 		showEditLink,
 		editUrl,
+		allowInlineAdd,
+		canCreateTerms,
+		editLinkLabel,
 	} = taxonomy;
+	const [ newTermName, setNewTermName ] = useState( '' );
+	const [ isCreating, setIsCreating ] = useState( false );
 
 	const currentPostType = useSelect(
 		( select ) => select( editorStore ).getCurrentPostType(),
@@ -66,7 +80,18 @@ export default function TtcTaxonomyPanel( { taxonomy } ) {
 	);
 
 	const { editPost } = useDispatch( editorStore );
+	const { saveEntityRecord, invalidateResolution } = useDispatch( coreStore );
+	const { createErrorNotice } = useDispatch( 'core/notices' );
 	const termAttribute = restBase || slug;
+	const normalizeTermName = ( value ) =>
+		( value || '' ).trim().toLocaleLowerCase();
+	const getExistingTermIdByName = ( name ) => {
+		const normalizedName = normalizeTermName( name );
+		const existing = terms.find(
+			( term ) => normalizeTermName( term.name ) === normalizedName
+		);
+		return existing?.id || null;
+	};
 
 	const onToggle = ( termId, isChecked ) => {
 		const next = isChecked
@@ -75,18 +100,88 @@ export default function TtcTaxonomyPanel( { taxonomy } ) {
 		editPost( { [ termAttribute ]: next } );
 	};
 
+	const onAddTerm = async () => {
+		const name = newTermName.trim();
+		if ( ! name || isCreating ) {
+			return;
+		}
+
+		const existingTermId = getExistingTermIdByName( name );
+		if ( existingTermId ) {
+			editPost( {
+				[ termAttribute ]: Array.from(
+					new Set( [ ...selectedTermIds, existingTermId ] )
+				),
+			} );
+			setNewTermName( '' );
+			return;
+		}
+
+		setIsCreating( true );
+		try {
+			const created = await saveEntityRecord(
+				'taxonomy',
+				slug,
+				{ name },
+				{ throwOnError: true }
+			);
+
+			if ( created && created.id ) {
+				editPost( {
+					[ termAttribute ]: Array.from(
+						new Set( [ ...selectedTermIds, created.id ] )
+					),
+				} );
+			}
+
+			invalidateResolution?.( 'getEntityRecords', [
+				'taxonomy',
+				slug,
+				{ per_page: 100, orderby: 'name', order: 'asc' },
+			] );
+			setNewTermName( '' );
+		} catch ( error ) {
+			const duplicateTermId = Number( error?.data?.term_id );
+			if ( Number.isInteger( duplicateTermId ) && duplicateTermId > 0 ) {
+				editPost( {
+					[ termAttribute ]: Array.from(
+						new Set( [ ...selectedTermIds, duplicateTermId ] )
+					),
+				} );
+				setNewTermName( '' );
+				return;
+			}
+
+			createErrorNotice(
+				error?.message ||
+					__(
+						'Could not add the term.',
+						'runthings-taxonomy-tags-to-checkboxes'
+					),
+				{ type: 'snackbar' }
+			);
+		} finally {
+			setIsCreating( false );
+		}
+	};
+
 	if ( ! isSupportedPostType ) {
 		return null;
 	}
 
 	// Build container style from height settings.
-	const containerStyle = {};
+	const containerStyle = {
+		marginLeft: '-6px',
+		marginTop: '-6px',
+		overflow: 'auto',
+		paddingLeft: '6px',
+		paddingTop: '6px',
+	};
 	const safeSlug = slug.replace( /_/g, '-' );
 	if ( maxHeight === 'none' ) {
 		// "full" — no constraint
 	} else if ( maxHeight ) {
 		containerStyle.maxHeight = maxHeight;
-		containerStyle.overflowY = 'auto';
 	}
 
 	return (
@@ -97,53 +192,79 @@ export default function TtcTaxonomyPanel( { taxonomy } ) {
 		>
 			{ isLoading && <Spinner /> }
 
-			{ ! isLoading && terms.length === 0 && (
-				<p>
-					{ __(
-						'No terms available.',
-						'runthings-taxonomy-tags-to-checkboxes'
+			{ ! isLoading && (
+				<Flex direction="column" align="stretch" gap={ 4 }>
+					{ terms.length === 0 && (
+						<p>
+							{ __(
+								'No terms available.',
+								'runthings-taxonomy-tags-to-checkboxes'
+							) }
+						</p>
 					) }
-				</p>
-			) }
 
-			{ ! isLoading && terms.length > 0 && (
-				<div
-					style={ {
-						...containerStyle,
-						display: 'grid',
-					} }
-				>
-					{ terms.map( ( term ) => (
-						<CheckboxControl
-							key={ term.id }
-							label={ term.name }
-							checked={ selectedTermIds.includes( term.id ) }
-							onChange={ ( checked ) =>
-								onToggle( term.id, checked )
-							}
-						/>
-					) ) }
-				</div>
-			) }
+					{ terms.length > 0 && (
+						<div
+							style={ {
+								...containerStyle,
+								display: 'grid',
+							} }
+						>
+							{ terms.map( ( term ) => (
+								<CheckboxControl
+									key={ term.id }
+									label={ term.name }
+									checked={ selectedTermIds.includes( term.id ) }
+									onChange={ ( checked ) =>
+										onToggle( term.id, checked )
+									}
+								/>
+							) ) }
+						</div>
+					) }
 
-			{ showEditLink && editUrl && (
-				<p style={ { marginTop: '8px' } }>
-					<ExternalLink href={ editUrl }>
-						{ label
-							? sprintf(
-									/* translators: %s: taxonomy label */
-									__(
-										'+ Add / Edit %s',
+					{ allowInlineAdd && canCreateTerms && (
+						<Flex align="flex-end">
+							<FlexItem isBlock>
+								<TextControl
+									label={ __(
+										'Add new term',
 										'runthings-taxonomy-tags-to-checkboxes'
-									),
-									label
-							  )
-							: __(
-									'+ Add / Edit',
+									) }
+									value={ newTermName }
+									onChange={ setNewTermName }
+									disabled={ isCreating }
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+								/>
+							</FlexItem>
+							<FlexItem>
+								<Button
+									variant="secondary"
+									onClick={ onAddTerm }
+									disabled={ ! newTermName.trim() || isCreating }
+									isBusy={ isCreating }
+									__next40pxDefaultSize
+								>
+									{ __(
+										'Add',
+										'runthings-taxonomy-tags-to-checkboxes'
+									) }
+								</Button>
+							</FlexItem>
+						</Flex>
+					) }
+
+					{ showEditLink && editUrl && (
+						<ExternalLink href={ editUrl }>
+							{ editLinkLabel ||
+								__(
+									'Add / Edit',
 									'runthings-taxonomy-tags-to-checkboxes'
-							  ) }
-					</ExternalLink>
-				</p>
+								) }
+						</ExternalLink>
+					) }
+				</Flex>
 			) }
 		</PluginDocumentSettingPanel>
 	);

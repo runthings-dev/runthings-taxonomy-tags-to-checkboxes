@@ -1,0 +1,24 @@
+.taxonomies-container {
+	overflow-y: auto;
+	padding: 0 0.9em;
+	border: 1px solid #ccc;
+	margin-top: 1em;
+}
+
+.taxonomy-edit-link {
+	margin-top: 1em;
+}
+
+.taxonomy-edit-link a {
+	font-weight: 600;
+}
+
+.taxonomy-edit-link a .dashicons {
+	width: 14px;
+	height: 14px;
+	font-size: 14px;
+	line-height: 1;
+	margin-left: 4px;
+	text-decoration: none;
+	vertical-align: text-bottom;
+}
