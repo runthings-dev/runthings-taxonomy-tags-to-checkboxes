@@ -14,13 +14,14 @@ This plugin lets you swap the auto-complete / search style interface for a check
 
 It allows you to pick from a list of the existing tags, so that admin users do not need to remember each tag.
 
-It doesn't allow new tags to be created on the fly, which keeps the tags list under control, although you can optionally enable an add / edit link.
+It can optionally allow new terms to be added directly from the post editing UI, while still letting you keep this disabled by default.
 
 = Features =
 * Replace the tags ui with a checkbox list
 * No alteration to front end functionality, or the underlying data / terms
 * Option to control the height of the taxonomy metabox, between auto, full height, and custom (px)
 * Show a link to the taxonomy edit screen via an "+ Add / Edit {taxononomy}" link
+* Optional inline add control for new terms, enabled per taxonomy
 * Customization via filters
 
 == Installation ==
