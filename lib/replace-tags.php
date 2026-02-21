@@ -271,8 +271,7 @@ class Replace_Tags {
             echo "<input type='hidden' name='tax_input[" . esc_attr( $taxonomy ) . "][]' value='0' />";
         }
 
-        $sortable_attr = $allow_inline_add ? ' data-runthings-ttc-sortable="1"' : '';
-        echo '<ul id="' . esc_attr( $taxonomy ) . 'checklist" data-wp-lists="list:' . esc_attr( $taxonomy ) . '"' . $sortable_attr . ' class="categorychecklist form-no-clear">';
+        echo '<ul id="' . esc_attr( $taxonomy ) . 'checklist" data-wp-lists="list:' . esc_attr( $taxonomy ) . '"' . ( $allow_inline_add ? ' data-runthings-ttc-sortable="' . esc_attr( '1' ) . '"' : '' ) . ' class="categorychecklist form-no-clear">';
         wp_terms_checklist(
             $post->ID,
             [
