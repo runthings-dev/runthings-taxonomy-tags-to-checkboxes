@@ -88,17 +88,22 @@
         var $showLinkCheckbox = $row.find(
           "input[name='runthings_ttc_show_links[]']"
         );
+        var $allowCreateCheckbox = $row.find(
+          "input[name='runthings_ttc_allow_term_create[]']"
+        );
 
         if ($this.is(":checked") && !$this.is(":disabled")) {
           // Enable height controls and show link checkbox
           $heightSelect.prop("disabled", false);
           $customHeight.prop("disabled", false);
           $showLinkCheckbox.prop("disabled", false);
+          $allowCreateCheckbox.prop("disabled", false);
         } else {
           // Disable height controls and show link checkbox
           $heightSelect.prop("disabled", true);
           $customHeight.prop("disabled", true);
           $showLinkCheckbox.prop("disabled", true);
+          $allowCreateCheckbox.prop("disabled", true);
         }
       }
     );

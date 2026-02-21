@@ -75,6 +75,12 @@ class Admin_Options {
             ['sanitize_callback' => [$this, 'sanitize_show_links_settings']]
         );
 
+        register_setting(
+            'runthings_taxonomy_options_group',
+            'runthings_ttc_allow_term_create',
+            ['sanitize_callback' => [$this, 'sanitize_allow_term_create_settings']]
+        );
+
         add_settings_section(
             'runthings_taxonomy_section',
             __( 'Taxonomy Settings', 'runthings-taxonomy-tags-to-checkboxes' ),
@@ -150,6 +156,19 @@ class Admin_Options {
     }
 
     /**
+     * Sanitize allow inline term create settings
+     *
+     * @param array $input The input array.
+     * @return array The sanitized array.
+     */
+    public function sanitize_allow_term_create_settings($input) {
+        if (!is_array($input)) {
+            return [];
+        }
+        return array_map('sanitize_text_field', $input);
+    }
+
+    /**
      * Enqueue admin scripts
      *
      * @param string $hook The current admin page hook.
@@ -191,6 +210,7 @@ class Admin_Options {
         $selected_taxonomies = get_option('runthings_ttc_selected_taxonomies', []);
         $height_settings = get_option('runthings_ttc_height_settings', []);
         $show_links = get_option('runthings_ttc_show_links', []);
+        $allow_term_create = get_option('runthings_ttc_allow_term_create', []);
         
         if (!is_array($selected_taxonomies)) {
             $selected_taxonomies = [];
@@ -202,6 +222,10 @@ class Admin_Options {
         
         if (!is_array($show_links)) {
             $show_links = [];
+        }
+
+        if (!is_array($allow_term_create)) {
+            $allow_term_create = [];
         }
         
         $taxonomies = get_taxonomies([], 'objects');
@@ -256,6 +280,9 @@ class Admin_Options {
                     <th scope="col" class="manage-column column-height">
                         <span><?php esc_html_e('Height', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
                     </th>
+                    <th scope="col" class="manage-column column-allow-create">
+                        <span><?php esc_html_e('Allow Inline Add', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
+                    </th>
                     <th scope="col" class="manage-column column-show-link">
                         <span><?php esc_html_e('Show Edit Link', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
                     </th>
@@ -266,7 +293,7 @@ class Admin_Options {
                 // No data message row (initially hidden)
                 ?>
                 <tr class="no-items" style="display: none;">
-                    <td class="colspanchange" colspan="6">
+                    <td class="colspanchange" colspan="7">
                         <div class="no-taxonomy-items">
                             <p><?php esc_html_e( 'No taxonomies found.', 'runthings-taxonomy-tags-to-checkboxes' ); ?></p>
                             <p class="hidden-system-message">
@@ -340,6 +367,9 @@ class Admin_Options {
                     
                     // Disable show link checkbox for hierarchical or unselected taxonomies
                     $link_disabled = $taxonomy->hierarchical || !$is_selected ? 'disabled' : '';
+
+                    $allow_create_checked = in_array($taxonomy->name, $allow_term_create, true) ? 'checked' : '';
+                    $allow_create_disabled = $taxonomy->hierarchical || !$is_selected ? 'disabled' : '';
                 ?>
                 <tr data-name="<?php echo esc_attr( strtolower($taxonomy->label) ); ?>" 
                     data-post-types="<?php echo esc_attr( strtolower(implode(', ', $taxonomy->object_type)) ); ?>"
@@ -367,6 +397,9 @@ class Admin_Options {
                             <input type="number" name="runthings_ttc_height_settings[<?php echo esc_attr($taxonomy->name); ?>][value]" value="<?php echo esc_attr($custom_height); ?>" min="50" max="1000" step="10" <?php echo esc_attr($height_disabled); ?>>
                             <span>px</span>
                         </div>
+                    </td>
+                    <td class="column-allow-create" data-colname="<?php esc_attr_e('Allow Inline Add', 'runthings-taxonomy-tags-to-checkboxes'); ?>">
+                        <input type="checkbox" name="runthings_ttc_allow_term_create[]" value="<?php echo esc_attr($taxonomy->name); ?>" <?php echo esc_attr($allow_create_checked); ?> <?php echo esc_attr($allow_create_disabled); ?>>
                     </td>
                     <td class="column-show-link" data-colname="<?php esc_attr_e('Show Edit Link', 'runthings-taxonomy-tags-to-checkboxes'); ?>">
                         <input type="checkbox" name="runthings_ttc_show_links[]" value="<?php echo esc_attr($taxonomy->name); ?>" <?php echo esc_attr($show_link_checked); ?> <?php echo esc_attr($link_disabled); ?>>
@@ -408,6 +441,9 @@ class Admin_Options {
                     </th>
                     <th scope="col" class="manage-column column-height">
                         <span><?php esc_html_e('Height', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
+                    </th>
+                    <th scope="col" class="manage-column column-allow-create">
+                        <span><?php esc_html_e('Allow Inline Add', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
                     </th>
                     <th scope="col" class="manage-column column-show-link">
                         <span><?php esc_html_e('Show Edit Link', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>

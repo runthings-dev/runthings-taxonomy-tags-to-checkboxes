@@ -85,6 +85,7 @@ function activate_runthings_ttc() {
     add_option( 'runthings_ttc_selected_taxonomies', [], '', $autoload );
     add_option( 'runthings_ttc_height_settings', [], '', $autoload );
     add_option( 'runthings_ttc_show_links', [], '', $autoload);
+    add_option( 'runthings_ttc_allow_term_create', [], '', $autoload );
 }
 register_activation_hook( __FILE__, 'RunthingsTaxonomyTagsToCheckboxes\activate_runthings_ttc' );
 
@@ -96,5 +97,6 @@ function uninstall_runthings_ttc() {
     delete_option( 'runthings_ttc_selected_taxonomies' );
     delete_option( 'runthings_ttc_height_settings' );
     delete_option( 'runthings_ttc_show_links' );
+    delete_option( 'runthings_ttc_allow_term_create' );
 }
 register_uninstall_hook( __FILE__, 'RunthingsTaxonomyTagsToCheckboxes\uninstall_runthings_ttc' );
