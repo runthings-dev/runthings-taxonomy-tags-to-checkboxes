@@ -100,14 +100,13 @@ This filter allows developers to modify the array of taxonomies selected for the
 ```php
 add_filter( 'runthings_ttc_selected_taxonomies', function( $selected_taxonomies ) {
     // Disable the override for the 'category' taxonomy.
-    unset( $selected_taxonomies['category'] );
-    return $selected_taxonomies;
+    return array_values( array_diff( $selected_taxonomies, [ 'category' ] ) );
 } );
 ```
 
 #### Parameters:
 
-- **`$selected_taxonomies`** (array): An array of taxonomy slugs. Unset an entry to disable the checkbox list override.
+- **`$selected_taxonomies`** (array): An array of taxonomy slugs. Remove a slug value from the array to disable the checkbox list override.
 
 ## Additional Notes
 
