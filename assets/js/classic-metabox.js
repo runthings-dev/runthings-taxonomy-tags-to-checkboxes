@@ -11,15 +11,18 @@
 	}
 
 	function getSearchConfig( checklist ) {
-		const mode = checklist.getAttribute( 'data-runthings-ttc-search-mode' ) || 'off';
+		const mode =
+			checklist.getAttribute( 'data-runthings-ttc-search-mode' ) || 'off';
 		const threshold = Number.parseInt(
-			checklist.getAttribute( 'data-runthings-ttc-search-threshold' ) || '20',
+			checklist.getAttribute( 'data-runthings-ttc-search-threshold' ) ||
+				'20',
 			10
 		);
 
 		return {
 			mode,
-			threshold: Number.isInteger( threshold ) && threshold > 0 ? threshold : 20,
+			threshold:
+				Number.isInteger( threshold ) && threshold > 0 ? threshold : 20,
 		};
 	}
 
@@ -30,14 +33,21 @@
 		}
 
 		if ( config.mode === 'min_terms' ) {
-			return checklist.querySelectorAll( ':scope > li' ).length >= config.threshold;
+			return (
+				checklist.querySelectorAll( ':scope > li' ).length >=
+				config.threshold
+			);
 		}
 
 		return false;
 	}
 
 	function isSearchInitialized( checklist ) {
-		return checklist.getAttribute( 'data-runthings-ttc-search-initialized' ) === '1';
+		return (
+			checklist.getAttribute(
+				'data-runthings-ttc-search-initialized'
+			) === '1'
+		);
 	}
 
 	function markSearchInitialized( checklist ) {
@@ -51,7 +61,8 @@
 
 		items.forEach( ( item ) => {
 			const itemText = normalizeTermName( item.textContent );
-			const isVisible = ! normalizedQuery || itemText.includes( normalizedQuery );
+			const isVisible =
+				! normalizedQuery || itemText.includes( normalizedQuery );
 			item.style.display = isVisible ? '' : 'none';
 			if ( isVisible ) {
 				visibleCount += 1;
@@ -64,7 +75,10 @@
 	}
 
 	function setupChecklistSearch( checklist ) {
-		if ( isSearchInitialized( checklist ) || ! shouldEnableSearch( checklist ) ) {
+		if (
+			isSearchInitialized( checklist ) ||
+			! shouldEnableSearch( checklist )
+		) {
 			return;
 		}
 		markSearchInitialized( checklist );
@@ -107,7 +121,9 @@
 		} );
 
 		const searchObserver = new MutationObserver( ( mutations ) => {
-			if ( mutations.some( ( mutation ) => mutation.addedNodes.length > 0 ) ) {
+			if (
+				mutations.some( ( mutation ) => mutation.addedNodes.length > 0 )
+			) {
 				filterChecklist( checklist, searchInput.value, noMatches );
 			}
 		} );
@@ -121,7 +137,9 @@
 		}
 
 		const thresholdObserver = new MutationObserver( ( mutations ) => {
-			if ( mutations.some( ( mutation ) => mutation.addedNodes.length > 0 ) ) {
+			if (
+				mutations.some( ( mutation ) => mutation.addedNodes.length > 0 )
+			) {
 				if ( shouldEnableSearch( checklist ) ) {
 					setupChecklistSearch( checklist );
 					thresholdObserver.disconnect();
@@ -133,7 +151,9 @@
 	}
 
 	function getSearchChecklists() {
-		return document.querySelectorAll( 'ul[data-runthings-ttc-search-mode]' );
+		return document.querySelectorAll(
+			'ul[data-runthings-ttc-search-mode]'
+		);
 	}
 
 	function initChecklistSearch( checklist ) {
@@ -153,7 +173,9 @@
 		}
 
 		$items.sort( function ( a, b ) {
-			return getLabelText( $( a ) ).localeCompare( getLabelText( $( b ) ) );
+			return getLabelText( $( a ) ).localeCompare(
+				getLabelText( $( b ) )
+			);
 		} );
 
 		$checklist.append( $items );
@@ -161,7 +183,9 @@
 
 	function observeChecklist( checklist ) {
 		const observer = new MutationObserver( function ( mutations ) {
-			if ( mutations.some( ( mutation ) => mutation.addedNodes.length > 0 ) ) {
+			if (
+				mutations.some( ( mutation ) => mutation.addedNodes.length > 0 )
+			) {
 				observer.disconnect();
 				sortChecklist( checklist );
 				observer.observe( checklist, { childList: true } );
@@ -172,7 +196,9 @@
 	}
 
 	function getSortableChecklists() {
-		return document.querySelectorAll( 'ul[data-runthings-ttc-sortable="1"]' );
+		return document.querySelectorAll(
+			'ul[data-runthings-ttc-sortable="1"]'
+		);
 	}
 
 	function getTaxonomyFromSubmitButton( button ) {
@@ -206,10 +232,14 @@
 			return null;
 		}
 
-		const checkboxes = checklist.querySelectorAll( 'input[type="checkbox"]' );
+		const checkboxes = checklist.querySelectorAll(
+			'input[type="checkbox"]'
+		);
 		for ( const checkbox of checkboxes ) {
 			const label = checkbox.closest( 'label' );
-			const labelText = normalizeTermName( label ? label.textContent : '' );
+			const labelText = normalizeTermName(
+				label ? label.textContent : ''
+			);
 			if ( labelText === normalizedTarget ) {
 				return checkbox;
 			}
@@ -239,7 +269,9 @@
 		}
 
 		existingCheckbox.checked = true;
-		existingCheckbox.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+		existingCheckbox.dispatchEvent(
+			new Event( 'change', { bubbles: true } )
+		);
 		newTermInput.value = '';
 		return true;
 	}

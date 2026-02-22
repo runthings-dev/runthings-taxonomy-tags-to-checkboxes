@@ -245,14 +245,15 @@ export default function TtcTaxonomyPanel( { taxonomy } ) {
 								</>
 							) }
 
-							{ shouldShowSearch && filteredTerms.length === 0 && (
-								<p>
-									{ __(
-										'No matching terms.',
-										'runthings-taxonomy-tags-to-checkboxes'
-									) }
-								</p>
-							) }
+							{ shouldShowSearch &&
+								filteredTerms.length === 0 && (
+									<p>
+										{ __(
+											'No matching terms.',
+											'runthings-taxonomy-tags-to-checkboxes'
+										) }
+									</p>
+								) }
 
 							<div
 								style={ {
@@ -264,7 +265,9 @@ export default function TtcTaxonomyPanel( { taxonomy } ) {
 									<CheckboxControl
 										key={ term.id }
 										label={ term.name }
-										checked={ selectedTermIds.includes( term.id ) }
+										checked={ selectedTermIds.includes(
+											term.id
+										) }
 										onChange={ ( checked ) =>
 											onToggle( term.id, checked )
 										}
@@ -293,7 +296,9 @@ export default function TtcTaxonomyPanel( { taxonomy } ) {
 								<Button
 									variant="secondary"
 									onClick={ onAddTerm }
-									disabled={ ! newTermName.trim() || isCreating }
+									disabled={
+										! newTermName.trim() || isCreating
+									}
 									isBusy={ isCreating }
 									__next40pxDefaultSize
 								>
