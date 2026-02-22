@@ -75,7 +75,7 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 = 1.0.0 - 1st April 2025 =
 * Initial release
 * Works with custom and built-in taxonomies
-* Control the height of the outbox
+* Control the height of the metabox
 * Optionally include an add/edit link
 * Filter `runthings_ttc_selected_taxonomies` to short-circuit the override
 
