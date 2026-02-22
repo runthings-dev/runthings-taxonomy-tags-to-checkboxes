@@ -77,6 +77,19 @@
       }
     });
 
+    // Search mode selection change handler
+    $(".search-mode-select").on("change", function () {
+      var $this = $(this);
+      var $row = $this.closest("tr");
+      var $minTermsField = $row.find(".min-terms-input");
+
+      if ($this.val() === "min_terms") {
+        $minTermsField.show();
+      } else {
+        $minTermsField.hide();
+      }
+    });
+
     // Taxonomy checkbox change handler
     $("input[name='runthings_ttc_selected_taxonomies[]']").on(
       "change",
@@ -91,6 +104,8 @@
         var $allowCreateCheckbox = $row.find(
           "input[name='runthings_ttc_allow_term_create[]']"
         );
+        var $searchModeSelect = $row.find(".search-mode-select");
+        var $searchThreshold = $row.find(".min-terms-input input");
 
         if ($this.is(":checked") && !$this.is(":disabled")) {
           // Enable height controls and show link checkbox
@@ -98,12 +113,16 @@
           $customHeight.prop("disabled", false);
           $showLinkCheckbox.prop("disabled", false);
           $allowCreateCheckbox.prop("disabled", false);
+          $searchModeSelect.prop("disabled", false);
+          $searchThreshold.prop("disabled", false);
         } else {
           // Disable height controls and show link checkbox
           $heightSelect.prop("disabled", true);
           $customHeight.prop("disabled", true);
           $showLinkCheckbox.prop("disabled", true);
           $allowCreateCheckbox.prop("disabled", true);
+          $searchModeSelect.prop("disabled", true);
+          $searchThreshold.prop("disabled", true);
         }
       }
     );
@@ -134,6 +153,9 @@
 
     // Initialize height fields on load
     $(".height-type-select").each(function () {
+      $(this).trigger("change");
+    });
+    $(".search-mode-select").each(function () {
       $(this).trigger("change");
     });
 

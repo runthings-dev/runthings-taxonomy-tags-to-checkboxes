@@ -57,7 +57,8 @@
 }
 #taxonomy-table th.column-height,
 #taxonomy-table th.column-show-link,
-#taxonomy-table th.column-allow-create {
+#taxonomy-table th.column-allow-create,
+#taxonomy-table th.column-search {
   padding: 8px;
 }
 .custom-height-input {
@@ -66,6 +67,14 @@
   gap: 5px;
 }
 .custom-height-input input[type="number"] {
+  width: 70px;
+}
+.min-terms-input {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.min-terms-input input[type="number"] {
   width: 70px;
 }
 
@@ -78,6 +87,9 @@
 #taxonomy-table .column-allow-create {
   width: 100px;
   text-align: center;
+}
+#taxonomy-table .column-search {
+  width: 180px;
 }
 
 /* Row actions fade transition */
@@ -165,7 +177,8 @@
 
   /* Show link inline */
   #taxonomy-table .column-show-link,
-  #taxonomy-table .column-allow-create {
+  #taxonomy-table .column-allow-create,
+  #taxonomy-table .column-search {
     display: flex;
     align-items: center;
     gap: 8px;

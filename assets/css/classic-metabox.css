@@ -5,6 +5,19 @@
 	margin-top: 1em;
 }
 
+.runthings-ttc-search-wrap {
+	margin-top: 1em;
+}
+
+.runthings-ttc-search-input {
+	width: 100%;
+}
+
+.runthings-ttc-no-matching {
+	margin: 0.8em 0 0;
+	color: #646970;
+}
+
 .taxonomy-edit-link {
 	margin-top: 1em;
 }

@@ -17,7 +17,7 @@ import {
 	store as editorStore,
 } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 export default function TtcTaxonomyPanel( { taxonomy } ) {
 	const {
@@ -31,9 +31,12 @@ export default function TtcTaxonomyPanel( { taxonomy } ) {
 		allowInlineAdd,
 		canCreateTerms,
 		editLinkLabel,
+		searchMode,
+		searchThreshold,
 	} = taxonomy;
 	const [ newTermName, setNewTermName ] = useState( '' );
 	const [ isCreating, setIsCreating ] = useState( false );
+	const [ searchQuery, setSearchQuery ] = useState( '' );
 
 	const currentPostType = useSelect(
 		( select ) => select( editorStore ).getCurrentPostType(),
@@ -92,6 +95,16 @@ export default function TtcTaxonomyPanel( { taxonomy } ) {
 		);
 		return existing?.id || null;
 	};
+	const shouldShowSearch =
+		'always' === searchMode ||
+		( 'min_terms' === searchMode &&
+			terms.length >= ( Number( searchThreshold ) || 20 ) );
+	const normalizedSearchQuery = normalizeTermName( searchQuery );
+	const filteredTerms = shouldShowSearch
+		? terms.filter( ( term ) =>
+				normalizeTermName( term.name ).includes( normalizedSearchQuery )
+		  )
+		: terms;
 
 	const onToggle = ( termId, isChecked ) => {
 		const next = isChecked
@@ -204,23 +217,61 @@ export default function TtcTaxonomyPanel( { taxonomy } ) {
 					) }
 
 					{ terms.length > 0 && (
-						<div
-							style={ {
-								...containerStyle,
-								display: 'grid',
-							} }
-						>
-							{ terms.map( ( term ) => (
-								<CheckboxControl
-									key={ term.id }
-									label={ term.name }
-									checked={ selectedTermIds.includes( term.id ) }
-									onChange={ ( checked ) =>
-										onToggle( term.id, checked )
-									}
-								/>
-							) ) }
-						</div>
+						<>
+							{ shouldShowSearch && (
+								<>
+									<TextControl
+										label={ __(
+											'Search terms',
+											'runthings-taxonomy-tags-to-checkboxes'
+										) }
+										type="search"
+										value={ searchQuery }
+										onChange={ setSearchQuery }
+										__next40pxDefaultSize
+										__nextHasNoMarginBottom
+									/>
+									<p style={ { margin: 0 } }>
+										{ sprintf(
+											/* translators: 1: visible terms count, 2: total terms count */
+											__(
+												'Showing %1$d of %2$d terms',
+												'runthings-taxonomy-tags-to-checkboxes'
+											),
+											filteredTerms.length,
+											terms.length
+										) }
+									</p>
+								</>
+							) }
+
+							{ shouldShowSearch && filteredTerms.length === 0 && (
+								<p>
+									{ __(
+										'No matching terms.',
+										'runthings-taxonomy-tags-to-checkboxes'
+									) }
+								</p>
+							) }
+
+							<div
+								style={ {
+									...containerStyle,
+									display: 'grid',
+								} }
+							>
+								{ filteredTerms.map( ( term ) => (
+									<CheckboxControl
+										key={ term.id }
+										label={ term.name }
+										checked={ selectedTermIds.includes( term.id ) }
+										onChange={ ( checked ) =>
+											onToggle( term.id, checked )
+										}
+									/>
+								) ) }
+							</div>
+						</>
 					) }
 
 					{ allowInlineAdd && canCreateTerms && (

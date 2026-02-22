@@ -81,6 +81,12 @@ class Admin_Options {
             ['sanitize_callback' => [$this, 'sanitize_allow_term_create_settings']]
         );
 
+        register_setting(
+            'runthings_taxonomy_options_group',
+            'runthings_ttc_search_settings',
+            ['sanitize_callback' => [$this, 'sanitize_search_settings']]
+        );
+
         add_settings_section(
             'runthings_taxonomy_section',
             __( 'Taxonomy Settings', 'runthings-taxonomy-tags-to-checkboxes' ),
@@ -169,6 +175,46 @@ class Admin_Options {
     }
 
     /**
+     * Sanitize search settings.
+     *
+     * @param array $input The input array.
+     * @return array
+     */
+    public function sanitize_search_settings($input) {
+        if (!is_array($input)) {
+            return [];
+        }
+
+        $sanitized = [];
+        $allowed_modes = [ 'off', 'always', 'min_terms' ];
+
+        foreach ($input as $taxonomy => $settings) {
+            $taxonomy = sanitize_key((string) $taxonomy);
+            if ('' === $taxonomy || !is_array($settings)) {
+                continue;
+            }
+
+            $mode = isset($settings['mode']) ? sanitize_key((string) $settings['mode']) : 'off';
+            if (!in_array($mode, $allowed_modes, true)) {
+                $mode = 'off';
+            }
+
+            $threshold = isset($settings['threshold']) ? absint($settings['threshold']) : 20;
+            if ($threshold < 1) {
+                $threshold = 20;
+            }
+            $threshold = min(1000, $threshold);
+
+            $sanitized[$taxonomy] = [
+                'mode' => $mode,
+                'threshold' => $threshold,
+            ];
+        }
+
+        return $sanitized;
+    }
+
+    /**
      * Enqueue admin scripts
      *
      * @param string $hook The current admin page hook.
@@ -211,6 +257,7 @@ class Admin_Options {
         $height_settings = get_option('runthings_ttc_height_settings', []);
         $show_links = get_option('runthings_ttc_show_links', []);
         $allow_term_create = get_option('runthings_ttc_allow_term_create', []);
+        $search_settings = get_option('runthings_ttc_search_settings', []);
         
         if (!is_array($selected_taxonomies)) {
             $selected_taxonomies = [];
@@ -226,6 +273,10 @@ class Admin_Options {
 
         if (!is_array($allow_term_create)) {
             $allow_term_create = [];
+        }
+
+        if (!is_array($search_settings)) {
+            $search_settings = [];
         }
         
         $taxonomies = get_taxonomies([], 'objects');
@@ -286,6 +337,9 @@ class Admin_Options {
                     <th scope="col" class="manage-column column-show-link">
                         <span><?php esc_html_e('Show Edit Link', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
                     </th>
+                    <th scope="col" class="manage-column column-search">
+                        <span><?php esc_html_e('Search Box', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -293,7 +347,7 @@ class Admin_Options {
                 // No data message row (initially hidden)
                 ?>
                 <tr class="no-items" style="display: none;">
-                    <td class="colspanchange" colspan="7">
+                    <td class="colspanchange" colspan="8">
                         <div class="no-taxonomy-items">
                             <p><?php esc_html_e( 'No taxonomies found.', 'runthings-taxonomy-tags-to-checkboxes' ); ?></p>
                             <p class="hidden-system-message">
@@ -370,6 +424,17 @@ class Admin_Options {
 
                     $allow_create_checked = in_array($taxonomy->name, $allow_term_create, true) ? 'checked' : '';
                     $allow_create_disabled = $taxonomy->hierarchical || !$is_selected ? 'disabled' : '';
+
+                    $search_mode = isset($search_settings[$taxonomy->name]['mode']) ? sanitize_key((string) $search_settings[$taxonomy->name]['mode']) : 'off';
+                    if (!in_array($search_mode, ['off', 'always', 'min_terms'], true)) {
+                        $search_mode = 'off';
+                    }
+                    $search_threshold = isset($search_settings[$taxonomy->name]['threshold']) ? intval($search_settings[$taxonomy->name]['threshold']) : 20;
+                    if ($search_threshold < 1) {
+                        $search_threshold = 20;
+                    }
+                    $search_threshold = min(1000, $search_threshold);
+                    $search_disabled = $taxonomy->hierarchical || !$is_selected ? 'disabled' : '';
                 ?>
                 <tr data-name="<?php echo esc_attr( strtolower($taxonomy->label) ); ?>" 
                     data-post-types="<?php echo esc_attr( strtolower(implode(', ', $taxonomy->object_type)) ); ?>"
@@ -403,6 +468,18 @@ class Admin_Options {
                     </td>
                     <td class="column-show-link" data-colname="<?php esc_attr_e('Show Edit Link', 'runthings-taxonomy-tags-to-checkboxes'); ?>">
                         <input type="checkbox" name="runthings_ttc_show_links[]" value="<?php echo esc_attr($taxonomy->name); ?>" <?php echo esc_attr($show_link_checked); ?> <?php echo esc_attr($link_disabled); ?>>
+                    </td>
+                    <td class="column-search" data-colname="<?php esc_attr_e('Search Box', 'runthings-taxonomy-tags-to-checkboxes'); ?>">
+                        <select name="runthings_ttc_search_settings[<?php echo esc_attr($taxonomy->name); ?>][mode]" class="search-mode-select" <?php echo esc_attr($search_disabled); ?>>
+                            <option value="off" <?php selected($search_mode, 'off'); ?>><?php esc_html_e('Off', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
+                            <option value="always" <?php selected($search_mode, 'always'); ?>><?php esc_html_e('Always', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
+                            <option value="min_terms" <?php selected($search_mode, 'min_terms'); ?>><?php esc_html_e('Min Terms', 'runthings-taxonomy-tags-to-checkboxes'); ?></option>
+                        </select>
+                        <div class="min-terms-input" style="margin-top: 5px; <?php echo esc_attr($search_mode !== 'min_terms' ? 'display: none;' : ''); ?>">
+                            <label class="screen-reader-text" for="runthings-ttc-min-terms-<?php echo esc_attr($taxonomy->name); ?>"><?php esc_html_e('Minimum terms', 'runthings-taxonomy-tags-to-checkboxes'); ?></label>
+                            <input id="runthings-ttc-min-terms-<?php echo esc_attr($taxonomy->name); ?>" type="number" name="runthings_ttc_search_settings[<?php echo esc_attr($taxonomy->name); ?>][threshold]" value="<?php echo esc_attr($search_threshold); ?>" min="1" max="1000" step="1" <?php echo esc_attr($search_disabled); ?>>
+                            <span><?php esc_html_e('Terms', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -447,6 +524,9 @@ class Admin_Options {
                     </th>
                     <th scope="col" class="manage-column column-show-link">
                         <span><?php esc_html_e('Show Edit Link', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
+                    </th>
+                    <th scope="col" class="manage-column column-search">
+                        <span><?php esc_html_e('Search Box', 'runthings-taxonomy-tags-to-checkboxes'); ?></span>
                     </th>
                 </tr>
             </tfoot>

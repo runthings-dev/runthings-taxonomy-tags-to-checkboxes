@@ -10,6 +10,137 @@
 		return ( text || '' ).trim().toLowerCase();
 	}
 
+	function getSearchConfig( checklist ) {
+		const mode = checklist.getAttribute( 'data-runthings-ttc-search-mode' ) || 'off';
+		const threshold = Number.parseInt(
+			checklist.getAttribute( 'data-runthings-ttc-search-threshold' ) || '20',
+			10
+		);
+
+		return {
+			mode,
+			threshold: Number.isInteger( threshold ) && threshold > 0 ? threshold : 20,
+		};
+	}
+
+	function shouldEnableSearch( checklist ) {
+		const config = getSearchConfig( checklist );
+		if ( config.mode === 'always' ) {
+			return true;
+		}
+
+		if ( config.mode === 'min_terms' ) {
+			return checklist.querySelectorAll( ':scope > li' ).length >= config.threshold;
+		}
+
+		return false;
+	}
+
+	function isSearchInitialized( checklist ) {
+		return checklist.getAttribute( 'data-runthings-ttc-search-initialized' ) === '1';
+	}
+
+	function markSearchInitialized( checklist ) {
+		checklist.setAttribute( 'data-runthings-ttc-search-initialized', '1' );
+	}
+
+	function filterChecklist( checklist, query, emptyStateEl ) {
+		const normalizedQuery = normalizeTermName( query );
+		const items = checklist.querySelectorAll( ':scope > li' );
+		let visibleCount = 0;
+
+		items.forEach( ( item ) => {
+			const itemText = normalizeTermName( item.textContent );
+			const isVisible = ! normalizedQuery || itemText.includes( normalizedQuery );
+			item.style.display = isVisible ? '' : 'none';
+			if ( isVisible ) {
+				visibleCount += 1;
+			}
+		} );
+
+		if ( emptyStateEl ) {
+			emptyStateEl.style.display = visibleCount > 0 ? 'none' : '';
+		}
+	}
+
+	function setupChecklistSearch( checklist ) {
+		if ( isSearchInitialized( checklist ) || ! shouldEnableSearch( checklist ) ) {
+			return;
+		}
+		markSearchInitialized( checklist );
+		const labels = window.runthingsTtcClassic || {};
+
+		const taxonomyDiv = checklist.closest( '.categorydiv' );
+		const listContainer = checklist.closest( '.taxonomies-container' );
+		if ( ! taxonomyDiv || ! listContainer ) {
+			return;
+		}
+
+		const searchWrap = document.createElement( 'div' );
+		searchWrap.className = 'runthings-ttc-search-wrap';
+
+		const searchLabel = document.createElement( 'label' );
+		searchLabel.className = 'screen-reader-text';
+		searchLabel.setAttribute( 'for', checklist.id + '-search' );
+		searchLabel.textContent = labels.searchLabel || 'Search terms';
+
+		const searchInput = document.createElement( 'input' );
+		searchInput.type = 'search';
+		searchInput.id = checklist.id + '-search';
+		searchInput.className = 'runthings-ttc-search-input';
+		searchInput.placeholder = labels.searchPlaceholder || 'Search terms...';
+
+		searchWrap.appendChild( searchLabel );
+		searchWrap.appendChild( searchInput );
+
+		const noMatches = document.createElement( 'p' );
+		noMatches.className = 'runthings-ttc-no-matching';
+		noMatches.textContent = labels.noMatchingTerms || 'No matching terms.';
+		noMatches.style.display = 'none';
+		noMatches.setAttribute( 'aria-live', 'polite' );
+
+		listContainer.parentNode.insertBefore( searchWrap, listContainer );
+		listContainer.appendChild( noMatches );
+
+		searchInput.addEventListener( 'input', () => {
+			filterChecklist( checklist, searchInput.value, noMatches );
+		} );
+
+		const searchObserver = new MutationObserver( ( mutations ) => {
+			if ( mutations.some( ( mutation ) => mutation.addedNodes.length > 0 ) ) {
+				filterChecklist( checklist, searchInput.value, noMatches );
+			}
+		} );
+		searchObserver.observe( checklist, { childList: true } );
+	}
+
+	function observeMinTermsThreshold( checklist ) {
+		const config = getSearchConfig( checklist );
+		if ( config.mode !== 'min_terms' || isSearchInitialized( checklist ) ) {
+			return;
+		}
+
+		const thresholdObserver = new MutationObserver( ( mutations ) => {
+			if ( mutations.some( ( mutation ) => mutation.addedNodes.length > 0 ) ) {
+				if ( shouldEnableSearch( checklist ) ) {
+					setupChecklistSearch( checklist );
+					thresholdObserver.disconnect();
+				}
+			}
+		} );
+
+		thresholdObserver.observe( checklist, { childList: true } );
+	}
+
+	function getSearchChecklists() {
+		return document.querySelectorAll( 'ul[data-runthings-ttc-search-mode]' );
+	}
+
+	function initChecklistSearch( checklist ) {
+		setupChecklistSearch( checklist );
+		observeMinTermsThreshold( checklist );
+	}
+
 	function sortChecklist( checklist ) {
 		const $checklist = $( checklist );
 		if ( ! $checklist.length ) {
@@ -136,6 +267,7 @@
 
 	$( function () {
 		bindDuplicateSelectionShortCircuit();
+		getSearchChecklists().forEach( initChecklistSearch );
 		getSortableChecklists().forEach( observeChecklist );
 	} );
 } )( jQuery );

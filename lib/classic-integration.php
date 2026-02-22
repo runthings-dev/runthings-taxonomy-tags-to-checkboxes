@@ -78,7 +78,10 @@ class Classic_Integration {
             RUNTHINGS_TTC_VERSION
         );
 
-        if ( empty( $this->config->get_inline_add_taxonomies() ) ) {
+        if (
+            empty( $this->config->get_inline_add_taxonomies() ) &&
+            ! $this->config->has_search_enabled_taxonomies()
+        ) {
             return;
         }
 
@@ -88,6 +91,16 @@ class Classic_Integration {
             [ 'jquery' ],
             RUNTHINGS_TTC_VERSION,
             true
+        );
+
+        wp_localize_script(
+            'runthings-ttc-classic-metabox',
+            'runthingsTtcClassic',
+            [
+                'searchLabel'     => __( 'Search terms', 'runthings-taxonomy-tags-to-checkboxes' ),
+                'searchPlaceholder' => __( 'Search terms...', 'runthings-taxonomy-tags-to-checkboxes' ),
+                'noMatchingTerms' => __( 'No matching terms.', 'runthings-taxonomy-tags-to-checkboxes' ),
+            ]
         );
     }
 
@@ -165,6 +178,7 @@ class Classic_Integration {
 
         $style = $this->config->get_classic_container_style( $taxonomy );
         $allow_inline_add = $this->config->is_inline_add_enabled_for_user( $taxonomy, $taxonomy_object );
+        $search_config = $this->config->get_search_config_for_taxonomy( $taxonomy );
 
         echo '<div id="taxonomy-' . esc_attr( $taxonomy ) . '" class="categorydiv">';
         echo '<div class="taxonomies-container tabs-panel" id="' . esc_attr( $taxonomy ) . '-all" style="' . esc_attr( $style ) . '">';
@@ -175,7 +189,11 @@ class Classic_Integration {
             echo "<input type='hidden' name='tax_input[" . esc_attr( $taxonomy ) . "][]' value='0' />";
         }
 
-        echo '<ul id="' . esc_attr( $taxonomy ) . 'checklist" data-wp-lists="list:' . esc_attr( $taxonomy ) . '"' . ( $allow_inline_add ? ' data-runthings-ttc-sortable="' . esc_attr( '1' ) . '"' : '' ) . ' class="categorychecklist form-no-clear">';
+        echo '<ul id="' . esc_attr( $taxonomy ) . 'checklist" data-wp-lists="list:' . esc_attr( $taxonomy ) . '"' .
+            ( $allow_inline_add ? ' data-runthings-ttc-sortable="' . esc_attr( '1' ) . '"' : '' ) .
+            ' data-runthings-ttc-search-mode="' . esc_attr( $search_config['mode'] ) . '"' .
+            ' data-runthings-ttc-search-threshold="' . esc_attr( (string) $search_config['threshold'] ) . '"' .
+            ' class="categorychecklist form-no-clear">';
         wp_terms_checklist(
             $post->ID,
             [

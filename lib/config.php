@@ -7,6 +7,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Config {
+    const SEARCH_MODE_OFF = 'off';
+    const SEARCH_MODE_ALWAYS = 'always';
+    const SEARCH_MODE_MIN_TERMS = 'min_terms';
+    const SEARCH_DEFAULT_THRESHOLD = 20;
+
     /**
      * @var array Selected taxonomies to convert.
      */
@@ -27,6 +32,11 @@ class Config {
      */
     private $height_settings = [];
 
+    /**
+     * @var array Taxonomy search settings.
+     */
+    private $search_settings = [];
+
     public function __construct() {
         $this->selected_taxonomies = $this->normalize_slug_array(
             get_option( 'runthings_ttc_selected_taxonomies', [] )
@@ -44,6 +54,12 @@ class Config {
 
         $height_settings = get_option( 'runthings_ttc_height_settings', [] );
         $this->height_settings = is_array( $height_settings ) ? $height_settings : [];
+
+        $search_settings = get_option( 'runthings_ttc_search_settings', [] );
+        $this->search_settings = $this->normalize_search_settings( $search_settings );
+        $this->search_settings = $this->normalize_search_settings(
+            apply_filters( 'runthings_ttc_search_settings', $this->search_settings )
+        );
     }
 
     /**
@@ -139,6 +155,44 @@ class Config {
     }
 
     /**
+     * @param string $taxonomy Taxonomy slug.
+     * @return array
+     */
+    public function get_search_config_for_taxonomy( $taxonomy ) {
+        $mode = self::SEARCH_MODE_OFF;
+        $threshold = self::SEARCH_DEFAULT_THRESHOLD;
+
+        if ( isset( $this->search_settings[ $taxonomy ] ) && is_array( $this->search_settings[ $taxonomy ] ) ) {
+            if ( isset( $this->search_settings[ $taxonomy ]['mode'] ) ) {
+                $mode = $this->normalize_search_mode( $this->search_settings[ $taxonomy ]['mode'] );
+            }
+
+            if ( isset( $this->search_settings[ $taxonomy ]['threshold'] ) ) {
+                $threshold = $this->normalize_search_threshold( $this->search_settings[ $taxonomy ]['threshold'] );
+            }
+        }
+
+        return [
+            'mode' => $mode,
+            'threshold' => $threshold,
+        ];
+    }
+
+    /**
+     * @return bool
+     */
+    public function has_search_enabled_taxonomies() {
+        foreach ( $this->selected_taxonomies as $taxonomy ) {
+            $search_config = $this->get_search_config_for_taxonomy( $taxonomy );
+            if ( self::SEARCH_MODE_OFF !== $search_config['mode'] ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return array
      */
     public function get_block_taxonomy_configs() {
@@ -163,6 +217,7 @@ class Config {
             $allow_inline_add = in_array( $taxonomy, $this->allow_term_create, true );
             $can_create_terms = $allow_inline_add && current_user_can( $taxonomy_object->cap->edit_terms );
             $show_edit_link = in_array( $taxonomy, $this->show_edit_links, true );
+            $search_config = $this->get_search_config_for_taxonomy( $taxonomy );
             $edit_url = '';
             if ( $show_edit_link && current_user_can( $taxonomy_object->cap->manage_terms ) ) {
                 $edit_url = admin_url( 'edit-tags.php?taxonomy=' . $taxonomy );
@@ -179,6 +234,8 @@ class Config {
                 'allowInlineAdd' => $allow_inline_add,
                 'canCreateTerms' => $can_create_terms,
                 'editLinkLabel'  => $this->get_edit_link_label( $taxonomy_object, $can_create_terms ),
+                'searchMode'     => $search_config['mode'],
+                'searchThreshold' => $search_config['threshold'],
             ];
         }
 
@@ -213,5 +270,65 @@ class Config {
                 )
             )
         );
+    }
+
+    /**
+     * @param mixed $value Value to normalize.
+     * @return array
+     */
+    private function normalize_search_settings( $value ) {
+        if ( ! is_array( $value ) ) {
+            return [];
+        }
+
+        $sanitized = [];
+        foreach ( $value as $taxonomy => $settings ) {
+            $taxonomy = sanitize_key( (string) $taxonomy );
+            if ( '' === $taxonomy || ! is_array( $settings ) ) {
+                continue;
+            }
+
+            $mode = isset( $settings['mode'] ) ? $this->normalize_search_mode( $settings['mode'] ) : self::SEARCH_MODE_OFF;
+            $threshold = isset( $settings['threshold'] ) ? $this->normalize_search_threshold( $settings['threshold'] ) : self::SEARCH_DEFAULT_THRESHOLD;
+
+            $sanitized[ $taxonomy ] = [
+                'mode' => $mode,
+                'threshold' => $threshold,
+            ];
+        }
+
+        return $sanitized;
+    }
+
+    /**
+     * @param mixed $value Value to normalize.
+     * @return string
+     */
+    private function normalize_search_mode( $value ) {
+        $mode = sanitize_key( (string) $value );
+        $allowed_modes = [
+            self::SEARCH_MODE_OFF,
+            self::SEARCH_MODE_ALWAYS,
+            self::SEARCH_MODE_MIN_TERMS,
+        ];
+
+        if ( ! in_array( $mode, $allowed_modes, true ) ) {
+            return self::SEARCH_MODE_OFF;
+        }
+
+        return $mode;
+    }
+
+    /**
+     * @param mixed $value Value to normalize.
+     * @return int
+     */
+    private function normalize_search_threshold( $value ) {
+        $threshold = absint( $value );
+        if ( $threshold < 1 ) {
+            return self::SEARCH_DEFAULT_THRESHOLD;
+        }
+
+        return min( 1000, $threshold );
     }
 }
