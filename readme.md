@@ -109,6 +109,27 @@ add_filter( 'runthings_ttc_selected_taxonomies', function( $selected_taxonomies 
 
 - **`$selected_taxonomies`** (array): An array of taxonomy slugs. Remove a slug value from the array to disable the checkbox list override.
 
+### runthings_ttc_search_settings
+
+This filter allows developers to override per-taxonomy search UI behavior.
+
+#### Usage Example
+
+```php
+add_filter( 'runthings_ttc_search_settings', function( $search_settings ) {
+    $search_settings['post_tag'] = [
+        'mode'      => 'always', // valid values: off, always, min_terms
+        'threshold' => 20,       // used when mode is min_terms
+    ];
+
+    return $search_settings;
+} );
+```
+
+#### Parameters:
+
+- **`$search_settings`** (array): A map of taxonomy slugs to search config arrays (`mode`, `threshold`).
+
 ## Additional Notes
 
 Built by Matthew Harris of runthings.dev, copyright 2025.
