@@ -44,12 +44,15 @@ define( 'RUNTHINGS_TTC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'RUNTHINGS_TTC_URL', plugin_dir_url( __FILE__ ) );
 
 require_once RUNTHINGS_TTC_DIR . 'lib/admin-options.php';
-require_once RUNTHINGS_TTC_DIR . 'lib/replace-tags.php';
+require_once RUNTHINGS_TTC_DIR . 'lib/config.php';
+require_once RUNTHINGS_TTC_DIR . 'lib/classic-integration.php';
+require_once RUNTHINGS_TTC_DIR . 'lib/block-integration.php';
+require_once RUNTHINGS_TTC_DIR . 'lib/bootstrap.php';
 
 class Taxonomy_Tags_To_Checkboxes {
     public function __construct() {
         new Admin_Options();
-        new Replace_Tags();
+        new Bootstrap();
 
         add_filter(
             'plugin_action_links_' . RUNTHINGS_TTC_BASENAME,
