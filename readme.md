@@ -40,7 +40,7 @@ Yes, toggle the "Show system taxonomies" checkbox to view all available taxonomi
 
 ### What user capabilities are required?
 
-The configuration screen needs a user with `manage_settings` cap to edit it, but the changes are applied to anyone with editor access to post types that displays those taxonomies.
+The configuration screen needs a user with `manage_options` cap to edit it, but the changes are applied to anyone with editor access to post types that display those taxonomies.
 
 ### I have a feature idea / I've found a bug
 

@@ -40,7 +40,7 @@ No change is made to the underlying taxonomy or its terms. Only the admin interf
 Yes, toggle the "Show system taxonomies" checkbox to view all available taxonomies.
 
 = What user capabilities are required? =
-The configuration screen needs a user with `manage_settings` cap to edit it, but the changes are applied to anyone with editor access to post types that displays those taxonomies.
+The configuration screen needs a user with `manage_options` cap to edit it, but the changes are applied to anyone with editor access to post types that display those taxonomies.
 
 = I have a feature idea / I've found a bug =
 You can post ideas or contribute to the project over at the GitHub repository, which can be found at https://github.com/runthings-dev/runthings-taxonomy-tags-to-checkboxes
