@@ -80,14 +80,14 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 * Filter `runthings_ttc_selected_taxonomies` to short-circuit the override
 
 == Filters ==
-### runthings_ttc_selected_taxonomies
+#### runthings_ttc_selected_taxonomies
 
 This filter allows developers to modify the array of taxonomies selected for the custom checkbox interface.
 
 For detailed documentation and examples, see the [full documentation on GitHub](https://github.com/runthings-dev/runthings-taxonomy-tags-to-checkboxes#filters).
 
-#### Parameters:
-1. **`$selected_taxonomies`** (`array`): An array of taxonomy slugs. Unset an entry to disable the checkbox list override.
+##### Parameters:
+1. **`$selected_taxonomies`** (`array`): An array of taxonomy slugs. Remove a slug value from the array to disable the checkbox list override.
 
 == Upgrade Notice ==
 

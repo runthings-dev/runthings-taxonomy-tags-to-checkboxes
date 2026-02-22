@@ -10,7 +10,7 @@ It allows you to pick from a list of the existing tags, so that admin users do n
 
 It doesn't allow new tags to be created on the fly, which keeps the tags list under control, although you can optionally enable an add / edit link.
 
-# Features
+### Features
 
 - Replace the tags ui with a checkbox list
 - No alteration to front end functionality, or the underlying data / terms
