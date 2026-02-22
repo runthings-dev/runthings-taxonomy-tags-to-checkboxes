@@ -1,5 +1,6 @@
 ( function ( $ ) {
 	'use strict';
+	const taxonomyStats = window.taxonomyStats || { systemCount: 0 };
 
 	$( document ).ready( function () {
 		// Table sorting functionality
@@ -182,4 +183,4 @@
 		// Initial update of no-items visibility
 		updateNoItemsVisibility();
 	} );
-} )( jQuery );
+} )( window.jQuery );

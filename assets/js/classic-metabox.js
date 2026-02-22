@@ -120,7 +120,7 @@
 			filterChecklist( checklist, searchInput.value, noMatches );
 		} );
 
-		const searchObserver = new MutationObserver( ( mutations ) => {
+		const searchObserver = new window.MutationObserver( ( mutations ) => {
 			if (
 				mutations.some( ( mutation ) => mutation.addedNodes.length > 0 )
 			) {
@@ -136,16 +136,20 @@
 			return;
 		}
 
-		const thresholdObserver = new MutationObserver( ( mutations ) => {
-			if (
-				mutations.some( ( mutation ) => mutation.addedNodes.length > 0 )
-			) {
-				if ( shouldEnableSearch( checklist ) ) {
-					setupChecklistSearch( checklist );
-					thresholdObserver.disconnect();
+		const thresholdObserver = new window.MutationObserver(
+			( mutations ) => {
+				if (
+					mutations.some(
+						( mutation ) => mutation.addedNodes.length > 0
+					)
+				) {
+					if ( shouldEnableSearch( checklist ) ) {
+						setupChecklistSearch( checklist );
+						thresholdObserver.disconnect();
+					}
 				}
 			}
-		} );
+		);
 
 		thresholdObserver.observe( checklist, { childList: true } );
 	}
@@ -182,7 +186,7 @@
 	}
 
 	function observeChecklist( checklist ) {
-		const observer = new MutationObserver( function ( mutations ) {
+		const observer = new window.MutationObserver( function ( mutations ) {
 			if (
 				mutations.some( ( mutation ) => mutation.addedNodes.length > 0 )
 			) {
@@ -302,4 +306,4 @@
 		getSearchChecklists().forEach( initChecklistSearch );
 		getSortableChecklists().forEach( observeChecklist );
 	} );
-} )( jQuery );
+} )( window.jQuery );
