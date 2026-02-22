@@ -19,9 +19,9 @@ It can optionally allow new terms to be added directly from the post editing UI,
 = Features =
 * Replace the tags ui with a checkbox list
 * No alteration to front end functionality, or the underlying data / terms
-* Option to control the height of the taxonomy metabox, between auto, full height, and custom (px)
-* Show a link to the taxonomy edit screen via an "+ Add / Edit {taxononomy}" link
+* Option to control the height of the taxonomy metabox, between default (200px max), full, and custom (px)
 * Optional inline add control for new terms, enabled per taxonomy
+* Optional link to the taxonomy edit screen via an "+ Add / Edit {taxonomy}" style link
 * Customization via filters
 
 == Installation ==
