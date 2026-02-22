@@ -58,6 +58,12 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 ## Changelog
 
+### v1.4.0 - 22nd February 2026
+
+- Feature - Add optional inline term creation controls in both Classic and Gutenberg editors
+- Feature - Add optional taxonomy search panel with `Off`, `Always`, and `Min Terms` display modes
+- Improvement - Add `runthings_ttc_search_settings` filter for per-taxonomy search behavior overrides
+
 ### v1.3.0 - 18th February 2026
 
 - Feature - Add Gutenberg (block editor) support for taxonomy meta boxes instead of using compatibility mode
