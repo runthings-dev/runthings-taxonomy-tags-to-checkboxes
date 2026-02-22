@@ -17,6 +17,7 @@ By default it does not allow new tags to be created on the fly, which keeps the 
 - Option to control the height of the taxonomy metabox, between default (200px max), full, and custom (px)
 - Optional inline add control for new terms, enabled per taxonomy
 - Optional link to the taxonomy edit screen via an `+ Add / Edit {taxonomy}` style link
+- Optional per-taxonomy search box with `Off`, `Always`, and `Min Terms` modes
 - Customization via filters
 
 ## Installation
