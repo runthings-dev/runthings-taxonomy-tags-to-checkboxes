@@ -47,17 +47,13 @@ class Classic_Integration {
      * Register per-taxonomy add-term AJAX hooks when inline create is enabled.
      */
     public function register_inline_create_ajax_hooks() {
-        if ( ! function_exists( '_wp_ajax_add_hierarchical_term' ) ) {
-            return;
-        }
-
         foreach ( $this->config->get_inline_add_taxonomies() as $taxonomy ) {
             $taxonomy_object = get_taxonomy( $taxonomy );
             if ( ! $taxonomy_object ) {
                 continue;
             }
 
-            add_action( 'wp_ajax_add-' . $taxonomy, '_wp_ajax_add_hierarchical_term' );
+            add_action( 'wp_ajax_add-' . $taxonomy, [ $this, 'handle_inline_create_ajax' ] );
         }
     }
 
@@ -183,11 +179,7 @@ class Classic_Integration {
         echo '<div id="taxonomy-' . esc_attr( $taxonomy ) . '" class="categorydiv">';
         echo '<div class="taxonomies-container tabs-panel" id="' . esc_attr( $taxonomy ) . '-all" style="' . esc_attr( $style ) . '">';
 
-        if ( 'category' === $taxonomy ) {
-            echo "<input type='hidden' name='post_category[]' value='0' />";
-        } else {
-            echo "<input type='hidden' name='tax_input[" . esc_attr( $taxonomy ) . "][]' value='0' />";
-        }
+        echo "<input type='hidden' name='" . esc_attr( $this->get_checkbox_input_name( $taxonomy ) ) . "[]' value='0' />";
 
         echo '<ul id="' . esc_attr( $taxonomy ) . 'checklist" data-wp-lists="list:' . esc_attr( $taxonomy ) . '"' .
             ( $allow_inline_add ? ' data-runthings-ttc-sortable="' . esc_attr( '1' ) . '"' : '' ) .
@@ -198,6 +190,7 @@ class Classic_Integration {
             $post->ID,
             [
                 'taxonomy' => $taxonomy,
+                'walker'   => $this->get_checklist_walker( $taxonomy ),
             ]
         );
         echo '</ul>';
@@ -292,8 +285,8 @@ class Classic_Integration {
         $term_ids = [];
         if ( isset( $_POST['tax_input'][ $taxonomy ] ) && is_array( $_POST['tax_input'][ $taxonomy ] ) ) {
             $term_ids = array_map( 'intval', wp_unslash( $_POST['tax_input'][ $taxonomy ] ) );
-        } elseif ( isset( $_POST[ 'checkbox_' . $taxonomy ] ) ) {
-            $term_ids = array_map( 'intval', wp_unslash( $_POST[ 'checkbox_' . $taxonomy ] ) );
+        } elseif ( isset( $_POST[ $this->get_checkbox_input_name( $taxonomy ) ] ) ) {
+            $term_ids = array_map( 'intval', wp_unslash( $_POST[ $this->get_checkbox_input_name( $taxonomy ) ] ) );
         }
 
         $term_ids = array_values(
@@ -306,5 +299,122 @@ class Classic_Integration {
         );
 
         wp_set_post_terms( $post_id, $term_ids, $taxonomy );
+    }
+
+    /**
+     * Handle inline term creation with custom checklist input names.
+     */
+    public function handle_inline_create_ajax() {
+        $action = isset( $_POST['action'] ) ? sanitize_key( wp_unslash( $_POST['action'] ) ) : '';
+        $taxonomy = get_taxonomy( substr( $action, 4 ) );
+
+        if ( ! $taxonomy ) {
+            wp_die( -1 );
+        }
+
+        check_ajax_referer( $action, '_ajax_nonce-add-' . $taxonomy->name );
+
+        if ( ! current_user_can( $taxonomy->cap->edit_terms ) ) {
+            wp_die( -1 );
+        }
+
+        $new_terms = isset( $_POST[ 'new' . $taxonomy->name ] ) ? wp_unslash( $_POST[ 'new' . $taxonomy->name ] ) : '';
+        $names = explode( ',', $new_terms );
+        $posted_terms = isset( $_POST[ $this->get_checkbox_input_name( $taxonomy->name ) ] )
+            ? (array) wp_unslash( $_POST[ $this->get_checkbox_input_name( $taxonomy->name ) ] )
+            : [];
+
+        $selected_term_ids = array_map( 'absint', $posted_terms );
+        $popular_term_ids = wp_popular_terms_checklist( $taxonomy->name, 0, 10, false );
+        $add = null;
+
+        foreach ( $names as $term_name ) {
+            $term_name = trim( $term_name );
+            $term_slug = sanitize_title( $term_name );
+
+            if ( '' === $term_slug ) {
+                continue;
+            }
+
+            $term_id = 0;
+            $inserted_term = wp_insert_term( $term_name, $taxonomy->name );
+
+            if ( is_wp_error( $inserted_term ) ) {
+                $existing_term_id = (int) $inserted_term->get_error_data( 'term_exists' );
+                if ( $existing_term_id > 0 ) {
+                    $term_id = $existing_term_id;
+                } else {
+                    continue;
+                }
+            } elseif ( $inserted_term && isset( $inserted_term['term_id'] ) ) {
+                $term_id = (int) $inserted_term['term_id'];
+            }
+
+            if ( $term_id <= 0 ) {
+                continue;
+            }
+
+            if ( ! in_array( $term_id, $selected_term_ids, true ) ) {
+                $selected_term_ids[] = $term_id;
+            }
+
+            $add = $this->build_inline_add_response( $taxonomy->name, $term_id, $selected_term_ids, $popular_term_ids, $term_id );
+        }
+
+        if ( ! is_array( $add ) ) {
+            wp_die( 0 );
+        }
+
+        $response = new \WP_Ajax_Response( $add );
+        $response->send();
+    }
+
+    /**
+     * @param string $taxonomy Taxonomy slug.
+     * @return string
+     */
+    private function get_checkbox_input_name( $taxonomy ) {
+        return 'rtp_ttc_checkbox_' . $taxonomy;
+    }
+
+    /**
+     * @param string $taxonomy Taxonomy slug.
+     * @return Classic_Term_Checklist_Walker
+     */
+    private function get_checklist_walker( $taxonomy ) {
+        require_once RUNTHINGS_TTC_DIR . 'lib/classic-integration-walker.php';
+
+        return new Classic_Term_Checklist_Walker( $this->get_checkbox_input_name( $taxonomy ) );
+    }
+
+    /**
+     * Build the AJAX response payload for a newly inserted term.
+     *
+     * @param string $taxonomy           Taxonomy slug.
+     * @param int    $response_id        Response node ID.
+     * @param array  $selected_term_ids  Selected term IDs.
+     * @param array  $popular_term_ids   Popular term IDs.
+     * @param int    $descendant_term_id Term subtree root to render.
+     * @return array
+     */
+    private function build_inline_add_response( $taxonomy, $response_id, $selected_term_ids, $popular_term_ids, $descendant_term_id ) {
+        ob_start();
+        wp_terms_checklist(
+            0,
+            [
+                'taxonomy'             => $taxonomy,
+                'descendants_and_self' => $descendant_term_id,
+                'selected_cats'        => $selected_term_ids,
+                'popular_cats'         => $popular_term_ids,
+                'walker'               => $this->get_checklist_walker( $taxonomy ),
+            ]
+        );
+
+        return [
+            'what'     => $taxonomy,
+            'id'       => $response_id,
+            'data'     => str_replace( [ "\n", "\t" ], '', ob_get_clean() ),
+            'position' => -1,
+        ];
     }
 }
