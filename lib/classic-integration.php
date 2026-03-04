@@ -149,7 +149,7 @@ class Classic_Integration {
         }
 
         add_meta_box(
-            'checkbox-' . $taxonomy . '-metabox',
+            $this->get_metabox_id( $taxonomy ),
             $taxonomy_object->label,
             function ( $post ) use ( $taxonomy ) {
                 $this->render_taxonomy_metabox( $post, $taxonomy );
@@ -200,7 +200,10 @@ class Classic_Integration {
         $this->maybe_output_edit_taxonomy_link( $taxonomy, $taxonomy_object, $allow_inline_add );
         echo '</div>';
 
-        wp_nonce_field( 'checkbox_' . $taxonomy . '_nonce_action', 'checkbox_' . $taxonomy . '_nonce' );
+        wp_nonce_field(
+            $this->get_nonce_action_name( $taxonomy ),
+            $this->get_nonce_field_name( $taxonomy )
+        );
     }
 
     /**
@@ -264,8 +267,8 @@ class Classic_Integration {
      * @param string $taxonomy Taxonomy slug.
      */
     public function save_taxonomy_metabox( $post_id, $taxonomy ) {
-        $nonce_field = 'checkbox_' . $taxonomy . '_nonce';
-        $nonce_action = 'checkbox_' . $taxonomy . '_nonce_action';
+        $nonce_field = $this->get_nonce_field_name( $taxonomy );
+        $nonce_action = $this->get_nonce_action_name( $taxonomy );
 
         if (
             ! isset( $_POST[ $nonce_field ] ) ||
@@ -375,6 +378,30 @@ class Classic_Integration {
      */
     private function get_checkbox_input_name( $taxonomy ) {
         return 'rtp_ttc_checkbox_' . $taxonomy;
+    }
+
+    /**
+     * @param string $taxonomy Taxonomy slug.
+     * @return string
+     */
+    private function get_nonce_field_name( $taxonomy ) {
+        return 'rtp_ttc_' . $taxonomy . '_nonce';
+    }
+
+    /**
+     * @param string $taxonomy Taxonomy slug.
+     * @return string
+     */
+    private function get_nonce_action_name( $taxonomy ) {
+        return 'rtp_ttc_' . $taxonomy . '_nonce_action';
+    }
+
+    /**
+     * @param string $taxonomy Taxonomy slug.
+     * @return string
+     */
+    private function get_metabox_id( $taxonomy ) {
+        return 'rtp-ttc-' . $taxonomy . '-metabox';
     }
 
     /**
