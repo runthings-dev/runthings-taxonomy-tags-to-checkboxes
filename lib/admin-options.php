@@ -113,7 +113,21 @@ class Admin_Options {
         if (!is_array($input)) {
             return [];
         }
-        return array_map('sanitize_text_field', $input);
+
+        $sanitized = [];
+
+        foreach ($input as $taxonomy) {
+            $taxonomy = sanitize_key((string) $taxonomy);
+            $taxonomy_object = get_taxonomy($taxonomy);
+
+            if (!$taxonomy_object || $taxonomy_object->hierarchical) {
+                continue;
+            }
+
+            $sanitized[] = $taxonomy;
+        }
+
+        return array_values(array_unique($sanitized));
     }
     
     /**
