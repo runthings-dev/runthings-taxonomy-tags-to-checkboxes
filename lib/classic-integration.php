@@ -168,7 +168,7 @@ class Classic_Integration {
      */
     public function render_taxonomy_metabox( $post, $taxonomy ) {
         $taxonomy_object = get_taxonomy( $taxonomy );
-        if ( ! $taxonomy_object ) {
+        if ( ! $taxonomy_object || $taxonomy_object->hierarchical ) {
             return;
         }
 
@@ -267,6 +267,11 @@ class Classic_Integration {
      * @param string $taxonomy Taxonomy slug.
      */
     public function save_taxonomy_metabox( $post_id, $taxonomy ) {
+        $taxonomy_object = get_taxonomy( $taxonomy );
+        if ( ! $taxonomy_object || $taxonomy_object->hierarchical ) {
+            return;
+        }
+
         $nonce_field = $this->get_nonce_field_name( $taxonomy );
         $nonce_action = $this->get_nonce_action_name( $taxonomy );
 
@@ -311,7 +316,7 @@ class Classic_Integration {
         $action = isset( $_POST['action'] ) ? sanitize_key( wp_unslash( $_POST['action'] ) ) : '';
         $taxonomy = get_taxonomy( substr( $action, 4 ) );
 
-        if ( ! $taxonomy ) {
+        if ( ! $taxonomy || $taxonomy->hierarchical ) {
             wp_die( -1 );
         }
 
