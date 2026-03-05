@@ -2,20 +2,21 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Taxonomy Tags to Checkboxes 1.4.0\n"
+"Project-Id-Version: Taxonomy Tags to Checkboxes 1.5.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/runthings-taxonomy-tags-to-checkboxes\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-22T21:54:20+00:00\n"
+"POT-Creation-Date: 2026-03-05T17:49:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: runthings-taxonomy-tags-to-checkboxes\n"
 
 #. Plugin Name of the plugin
 #: runthings-taxonomy-tags-to-checkboxes.php
+#: lib/clean-up-tool/notice-manager.php:102
 msgid "Taxonomy Tags to Checkboxes"
 msgstr ""
 
@@ -39,182 +40,340 @@ msgstr ""
 msgid "https://runthings.dev/"
 msgstr ""
 
-#: lib/admin-options.php:29
-#: lib/admin-options.php:30
+#: lib/admin-options.php:34
+#: lib/admin-options.php:35
 msgid "Taxonomies"
 msgstr ""
 
-#: lib/admin-options.php:48
+#: lib/admin-options.php:53
 msgid "Save Changes"
 msgstr ""
 
-#: lib/admin-options.php:92
+#: lib/admin-options.php:111
 msgid "Taxonomy Settings"
 msgstr ""
 
-#: lib/admin-options.php:99
+#: lib/admin-options.php:118
 msgid "Select Taxonomies"
 msgstr ""
 
-#: lib/admin-options.php:287
+#: lib/admin-options.php:320
 msgid "Select which taxonomies should use checkboxes instead of tags UI."
 msgstr ""
 
-#: lib/admin-options.php:292
+#: lib/admin-options.php:325
 msgid "Show system taxonomies"
 msgstr ""
 
-#: lib/admin-options.php:302
-#: lib/admin-options.php:490
+#: lib/admin-options.php:335
+#: lib/admin-options.php:523
 msgid "Select All"
 msgstr ""
 
-#: lib/admin-options.php:306
-#: lib/admin-options.php:494
+#: lib/admin-options.php:339
+#: lib/admin-options.php:527
 msgid "Name"
 msgstr ""
 
-#: lib/admin-options.php:315
-#: lib/admin-options.php:503
+#: lib/admin-options.php:348
+#: lib/admin-options.php:536
 msgid "Post Types"
 msgstr ""
 
-#: lib/admin-options.php:324
-#: lib/admin-options.php:512
+#: lib/admin-options.php:357
+#: lib/admin-options.php:545
 msgid "Type"
 msgstr ""
 
-#: lib/admin-options.php:332
-#: lib/admin-options.php:455
-#: lib/admin-options.php:520
+#: lib/admin-options.php:365
+#: lib/admin-options.php:488
+#: lib/admin-options.php:553
 msgid "Height"
 msgstr ""
 
-#: lib/admin-options.php:335
-#: lib/admin-options.php:466
-#: lib/admin-options.php:523
+#: lib/admin-options.php:368
+#: lib/admin-options.php:499
+#: lib/admin-options.php:556
 msgid "Allow Inline Add"
 msgstr ""
 
-#: lib/admin-options.php:338
-#: lib/admin-options.php:469
-#: lib/admin-options.php:526
+#: lib/admin-options.php:371
+#: lib/admin-options.php:502
+#: lib/admin-options.php:559
 msgid "Show Edit Link"
 msgstr ""
 
-#: lib/admin-options.php:341
-#: lib/admin-options.php:472
-#: lib/admin-options.php:529
+#: lib/admin-options.php:374
+#: lib/admin-options.php:505
+#: lib/admin-options.php:562
 msgid "Search Box"
 msgstr ""
 
-#: lib/admin-options.php:352
+#: lib/admin-options.php:385
 msgid "No taxonomies found."
 msgstr ""
 
-#: lib/admin-options.php:354
+#: lib/admin-options.php:387
 msgid "System taxonomies are currently hidden. Enable \"Show system taxonomies\" to see more options."
 msgstr ""
 
-#: lib/admin-options.php:371
-#: lib/admin-options.php:379
+#: lib/admin-options.php:404
+#: lib/admin-options.php:412
 msgid "Taxonomy already uses checkboxes"
 msgstr ""
 
-#: lib/admin-options.php:372
+#: lib/admin-options.php:405
 msgid "Hierarchical"
 msgstr ""
 
-#: lib/admin-options.php:374
+#: lib/admin-options.php:407
 msgid "Uses tags interface by default"
 msgstr ""
 
-#: lib/admin-options.php:375
+#: lib/admin-options.php:408
 msgid "Non-hierarchical"
 msgstr ""
 
-#: lib/admin-options.php:444
+#: lib/admin-options.php:477
 msgid "Convert"
 msgstr ""
 
-#: lib/admin-options.php:457
+#: lib/admin-options.php:490
 msgid "Default"
 msgstr ""
 
-#: lib/admin-options.php:458
+#: lib/admin-options.php:491
 msgid "Full"
 msgstr ""
 
-#: lib/admin-options.php:459
+#: lib/admin-options.php:492
 msgid "Custom"
 msgstr ""
 
-#: lib/admin-options.php:474
+#: lib/admin-options.php:507
 msgid "Off"
 msgstr ""
 
-#: lib/admin-options.php:475
+#: lib/admin-options.php:508
 msgid "Always"
 msgstr ""
 
-#: lib/admin-options.php:476
+#: lib/admin-options.php:509
 msgid "Min Terms"
 msgstr ""
 
-#: lib/admin-options.php:479
+#: lib/admin-options.php:512
 msgid "Minimum terms"
 msgstr ""
 
-#: lib/admin-options.php:481
+#: lib/admin-options.php:514
 msgid "Terms"
 msgstr ""
 
-#: lib/admin-options.php:594
+#: lib/admin-options.php:627
 msgid "Settings"
 msgstr ""
 
-#: lib/classic-integration.php:100
+#: lib/classic-integration.php:96
 #: src/components/TtcTaxonomyPanel.js:224
 msgid "Search terms"
 msgstr ""
 
-#: lib/classic-integration.php:101
+#: lib/classic-integration.php:97
 msgid "Search terms..."
 msgstr ""
 
-#: lib/classic-integration.php:102
+#: lib/classic-integration.php:98
 #: src/components/TtcTaxonomyPanel.js:251
 msgid "No matching terms."
 msgstr ""
 
 #. translators: %s: Add new taxonomy item label.
-#: lib/classic-integration.php:227
+#: lib/classic-integration.php:223
 #, php-format
 msgid "+ %s"
 msgstr ""
 
+#. translators: 1: plugin label, 2: number of suspect terms.
+#: lib/clean-up-tool/notice-manager.php:105
+#, php-format
+msgid "%1$s: Found %2$d suspect numeric term that may have been created by a previous bug."
+msgid_plural "%1$s: Found %2$d suspect numeric terms that may have been created by a previous bug."
+msgstr[0] ""
+msgstr[1] ""
+
+#: lib/clean-up-tool/notice-manager.php:117
+msgid "Review candidates"
+msgstr ""
+
+#: lib/clean-up-tool/notice-manager.php:119
+msgid "Dismiss this notice"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:68
+msgid "Cleanup action failed nonce verification."
+msgstr ""
+
+#. translators: %d: number of candidates found.
+#: lib/clean-up-tool/settings-panel.php:81
+#, php-format
+msgid "Scan refreshed. %d suspect term currently matches the cleanup criteria."
+msgid_plural "Scan refreshed. %d suspect terms currently match the cleanup criteria."
+msgstr[0] ""
+msgstr[1] ""
+
+#: lib/clean-up-tool/settings-panel.php:105
+msgid "Please confirm before deleting selected candidates."
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:113
+msgid "No candidates were selected for deletion."
+msgstr ""
+
+#. translators: 1: deleted count, 2: skipped count, 3: error count.
+#: lib/clean-up-tool/settings-panel.php:128
+#, php-format
+msgid "Cleanup complete. Deleted: %1$d, Skipped: %2$d, Errors: %3$d."
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:172
+msgid "Suspect Numeric Terms Cleanup"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:173
+msgid "A bug existed which might have made some unwanted empty terms that just have the title and slug of another terms id. This tool helps you tidy up any issues that might have been created."
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:174
+msgid "These terms match a strict detection pattern: selected taxonomy, numeric-only name, mapped to another term ID in the same taxonomy, and zero assignments. Review carefully before deleting."
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:182
+msgid "Taxonomy"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:183
+msgid "Suspect Term"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:184
+msgid "Mapped Existing Term"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:185
+msgid "Count"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:186
+msgid "Links"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:210
+msgid "All terms"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:212
+msgid "Suspect term"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:214
+msgid "Mapped term"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:223
+msgid "I understand this will permanently delete selected suspect terms."
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:228
+msgid "Refresh Candidates"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:229
+msgid "Delete Selected Candidates"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:251
+msgid "Detailed cleanup results:"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:254
+msgid "Skipped."
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:257
+msgid "Skipped:"
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:261
+msgid "Error."
+msgstr ""
+
+#: lib/clean-up-tool/settings-panel.php:264
+msgid "Error:"
+msgstr ""
+
+#: lib/clean-up-tool/term-deleter.php:29
+msgid "Candidate no longer matches the scanner results."
+msgstr ""
+
+#: lib/clean-up-tool/term-deleter.php:42
+msgid "Taxonomy no longer exists."
+msgstr ""
+
+#: lib/clean-up-tool/term-deleter.php:51
+msgid "You do not have permission to delete terms in this taxonomy."
+msgstr ""
+
+#: lib/clean-up-tool/term-deleter.php:80
+msgid "Term could not be deleted."
+msgstr ""
+
+#: lib/clean-up-tool/term-deleter.php:114
+msgid "Candidate IDs are no longer valid."
+msgstr ""
+
+#: lib/clean-up-tool/term-deleter.php:119
+msgid "Candidate term no longer exists."
+msgstr ""
+
+#: lib/clean-up-tool/term-deleter.php:124
+msgid "Mapped target term no longer exists."
+msgstr ""
+
+#: lib/clean-up-tool/term-deleter.php:128
+msgid "Candidate term name is no longer numeric."
+msgstr ""
+
+#: lib/clean-up-tool/term-deleter.php:132
+msgid "Candidate term no longer maps to the target term ID."
+msgstr ""
+
+#: lib/clean-up-tool/term-deleter.php:136
+msgid "Candidate term is now assigned to content."
+msgstr ""
+
 #. translators: %s: taxonomy label
-#: lib/config.php:110
+#: lib/config.php:111
 #, php-format
 msgid "Edit %s"
 msgstr ""
 
-#: lib/config.php:113
+#: lib/config.php:114
 msgid "Edit"
 msgstr ""
 
 #. translators: %s: taxonomy label
-#: lib/config.php:119
+#: lib/config.php:120
 #, php-format
 msgid "Add / Edit %s"
 msgstr ""
 
-#: lib/config.php:122
+#: lib/config.php:123
 #: src/components/TtcTaxonomyPanel.js:317
 msgid "Add / Edit"
 msgstr ""
 
-#: runthings-taxonomy-tags-to-checkboxes.php:73
+#: runthings-taxonomy-tags-to-checkboxes.php:77
 msgid "GitHub"
 msgstr ""
 
