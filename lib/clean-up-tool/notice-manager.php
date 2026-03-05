@@ -131,31 +131,7 @@ class Cleanup_Notice_Manager {
      * @return array
      */
     private function get_scope_taxonomies() {
-        $taxonomies = get_option( 'runthings_ttc_selected_taxonomies', [] );
-        if ( ! is_array( $taxonomies ) ) {
-            $taxonomies = [];
-        }
-
-        $taxonomies = array_values(
-            array_filter(
-                array_map(
-                    static function ( $taxonomy ) {
-                        $taxonomy = sanitize_key( (string) $taxonomy );
-                        if ( '' === $taxonomy ) {
-                            return '';
-                        }
-
-                        $taxonomy_object = get_taxonomy( $taxonomy );
-                        if ( ! $taxonomy_object || $taxonomy_object->hierarchical ) {
-                            return '';
-                        }
-
-                        return $taxonomy;
-                    },
-                    $taxonomies
-                )
-            )
-        );
+        $taxonomies = $this->config->get_selected_taxonomies();
 
         $taxonomies = apply_filters( 'runthings_ttc_cleanup_taxonomies', $taxonomies, $this->config );
 

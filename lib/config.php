@@ -44,7 +44,7 @@ class Config {
         $selected_taxonomies = $this->normalize_slug_array(
             apply_filters( 'runthings_ttc_selected_taxonomies', $selected_taxonomies )
         );
-        $this->selected_taxonomies = $this->filter_supported_taxonomies( $selected_taxonomies );
+        $this->selected_taxonomies = $selected_taxonomies;
 
         $this->allow_term_create = $this->normalize_slug_array(
             get_option( 'runthings_ttc_allow_term_create', [] )
@@ -269,26 +269,6 @@ class Config {
                         return '' !== $slug;
                     }
                 )
-            )
-        );
-    }
-
-    /**
-     * Keep only existing, non-hierarchical taxonomies.
-     *
-     * @param array $taxonomies Taxonomy slugs.
-     * @return array
-     */
-    private function filter_supported_taxonomies( $taxonomies ) {
-        return array_values(
-            array_filter(
-                $taxonomies,
-                static function ( $taxonomy ) {
-                    $taxonomy_object = get_taxonomy( $taxonomy );
-
-                    return $taxonomy_object instanceof \WP_Taxonomy &&
-                        ! $taxonomy_object->hierarchical;
-                }
             )
         );
     }
