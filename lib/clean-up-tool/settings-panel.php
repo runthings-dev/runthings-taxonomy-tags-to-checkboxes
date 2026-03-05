@@ -98,7 +98,7 @@ class Cleanup_Settings_Panel {
             ? array_map( 'sanitize_text_field', wp_unslash( $_POST[ self::SELECTED_FIELD ] ) )
             : [];
 
-        $confirmed = isset( $_POST[ self::CONFIRM_FIELD ] ) && '1' === (string) wp_unslash( $_POST[ self::CONFIRM_FIELD ] );
+        $confirmed = isset( $_POST[ self::CONFIRM_FIELD ] ) && '1' === sanitize_text_field( wp_unslash( $_POST[ self::CONFIRM_FIELD ] ) );
         if ( ! $confirmed ) {
             $this->set_flash( [
                 'type' => 'error',
@@ -314,11 +314,13 @@ class Cleanup_Settings_Panel {
      * @return bool
      */
     private function is_settings_page_request() {
-        if ( ! isset( $_REQUEST['page'] ) ) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check for admin page routing.
+        if ( ! isset( $_GET['page'] ) ) {
             return false;
         }
 
-        return 'runthings-taxonomy-options' === sanitize_key( wp_unslash( $_REQUEST['page'] ) );
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check for admin page routing.
+        return 'runthings-taxonomy-options' === sanitize_key( wp_unslash( $_GET['page'] ) );
     }
 
     /**

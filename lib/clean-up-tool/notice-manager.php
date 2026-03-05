@@ -44,7 +44,9 @@ class Cleanup_Notice_Manager {
             return;
         }
 
-        if ( ! isset( $_GET[ self::DISMISS_FLAG ] ) || '1' !== (string) $_GET[ self::DISMISS_FLAG ] ) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is verified immediately below before any state changes.
+        $dismiss_flag = isset( $_GET[ self::DISMISS_FLAG ] ) ? sanitize_text_field( wp_unslash( $_GET[ self::DISMISS_FLAG ] ) ) : '';
+        if ( '1' !== $dismiss_flag ) {
             return;
         }
 

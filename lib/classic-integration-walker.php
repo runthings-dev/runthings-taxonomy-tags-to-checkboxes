@@ -50,6 +50,7 @@ class Classic_Term_Checklist_Walker extends \Walker_Category_Checklist {
             $output .= "\n" . '<li' . $class . '>' .
                 '<div class="' . $inner_class . '" data-term-id=' . $term->term_id .
                 ' tabindex="0" role="checkbox" aria-checked="' . $aria_checked . '">' .
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter hook.
                 esc_html( apply_filters( 'the_category', $term->name, '', '' ) ) . '</div>';
             return;
         }
@@ -63,6 +64,7 @@ class Classic_Term_Checklist_Walker extends \Walker_Category_Checklist {
             '<label class="selectit"><input value="' . $term->term_id . '" type="checkbox" name="' . esc_attr( $this->input_name ) . '[]" id="' . esc_attr( $checkbox_element_id ) . '"' .
             checked( $is_selected, true, false ) .
             disabled( $is_disabled, true, false ) . ' /> ' .
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter hook.
             esc_html( apply_filters( 'the_category', $term->name, '', '' ) ) . '</label>';
     }
 }

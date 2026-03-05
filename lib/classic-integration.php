@@ -326,10 +326,10 @@ class Classic_Integration {
             wp_die( -1 );
         }
 
-        $new_terms = isset( $_POST[ 'new' . $taxonomy->name ] ) ? wp_unslash( $_POST[ 'new' . $taxonomy->name ] ) : '';
+        $new_terms = isset( $_POST[ 'new' . $taxonomy->name ] ) ? sanitize_text_field( wp_unslash( $_POST[ 'new' . $taxonomy->name ] ) ) : '';
         $names = explode( ',', $new_terms );
         $posted_terms = isset( $_POST[ $this->get_checkbox_input_name( $taxonomy->name ) ] )
-            ? (array) wp_unslash( $_POST[ $this->get_checkbox_input_name( $taxonomy->name ) ] )
+            ? array_map( 'sanitize_text_field', (array) wp_unslash( $_POST[ $this->get_checkbox_input_name( $taxonomy->name ) ] ) )
             : [];
 
         $selected_term_ids = array_map( 'absint', $posted_terms );
