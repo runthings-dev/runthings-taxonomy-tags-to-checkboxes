@@ -103,6 +103,18 @@
   opacity: 1;
 }
 
+.runthings-ttc-cleanup-panel {
+  margin-top: 28px;
+}
+
+.runthings-ttc-cleanup-panel .check-column {
+  width: 2.2em;
+}
+
+.runthings-ttc-cleanup-panel thead .check-column {
+  padding: 11px 0 11px 3px;
+}
+
 /* Mobile responsive layout */
 @media screen and (max-width: 782px) {
   /* Hide table headers on mobile */
@@ -190,5 +202,9 @@
     border: none;
     padding: 20px;
     margin: 0;
+  }
+
+  .runthings-ttc-cleanup-panel thead .check-column {
+    padding: 14px 0 8px 3px;
   }
 }

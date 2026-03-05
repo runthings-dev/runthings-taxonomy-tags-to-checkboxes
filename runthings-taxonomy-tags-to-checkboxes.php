@@ -48,10 +48,14 @@ require_once RUNTHINGS_TTC_DIR . 'lib/config.php';
 require_once RUNTHINGS_TTC_DIR . 'lib/classic-integration.php';
 require_once RUNTHINGS_TTC_DIR . 'lib/block-integration.php';
 require_once RUNTHINGS_TTC_DIR . 'lib/bootstrap.php';
+require_once RUNTHINGS_TTC_DIR . 'lib/clean-up-tool/candidate-scanner.php';
+require_once RUNTHINGS_TTC_DIR . 'lib/clean-up-tool/term-deleter.php';
+require_once RUNTHINGS_TTC_DIR . 'lib/clean-up-tool/notice-manager.php';
+require_once RUNTHINGS_TTC_DIR . 'lib/clean-up-tool/settings-panel.php';
+require_once RUNTHINGS_TTC_DIR . 'lib/clean-up-tool/bootstrap.php';
 
 class Taxonomy_Tags_To_Checkboxes {
     public function __construct() {
-        new Admin_Options();
         new Bootstrap();
 
         add_filter(

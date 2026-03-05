@@ -12,6 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Admin_Options {
     /**
+     * @var callable|null
+     */
+    private $extra_panel_renderer = null;
+
+    /**
      * Constructor.
      */
     public function __construct() {
@@ -48,8 +53,22 @@ class Admin_Options {
                 submit_button( __( 'Save Changes', 'runthings-taxonomy-tags-to-checkboxes' ) );
                 ?>
             </form>
+            <?php
+            if ( is_callable( $this->extra_panel_renderer ) ) {
+                call_user_func( $this->extra_panel_renderer );
+            }
+            ?>
         </div>
         <?php
+    }
+
+    /**
+     * @param callable $renderer Callable panel renderer.
+     */
+    public function set_extra_panel_renderer( $renderer ) {
+        if ( is_callable( $renderer ) ) {
+            $this->extra_panel_renderer = $renderer;
+        }
     }
 
     /**
