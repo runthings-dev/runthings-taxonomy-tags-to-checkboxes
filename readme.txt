@@ -53,6 +53,11 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 == Changelog ==
 
+= 1.5.0 - 5th March 2026 =
+* Feature - Add a suspect-term cleanup tool in Settings > Taxonomies to identify and remove likely erroneous numeric terms created by a previous bug
+* Feature - Add `runthings_ttc_cleanup_capability` and `runthings_ttc_cleanup_taxonomies` filters for cleanup tool permissions and scope overrides
+* Fix - Prevent accidental creation of numeric term names in the classic integration path
+
 = 1.4.0 - 22nd February 2026 =
 * Feature - Add optional inline term creation controls in both Classic and Gutenberg editors
 * Feature - Add optional taxonomy search panel with `Off`, `Always`, and `Min Terms` display modes
@@ -104,14 +109,14 @@ This filter allows developers to override per-taxonomy search UI behavior.
 
 == Upgrade Notice ==
 
+= 1.5.0 =
+Fixes term creation edge cases in classic taxonomy metaboxes and a cleanup tool to fix affected sites
+
 = 1.4.0 =
 Adds optional inline term creation and taxonomy search panel controls.
 
 = 1.3.0 =
 Adds Gutenberg support for taxonomy meta boxes.
-
-= 1.2.0 =
-Fixes fatal error when a configured taxonomy is deleted, improves panel height options.
 
 == License ==
 

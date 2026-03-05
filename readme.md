@@ -58,6 +58,13 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 ## Changelog
 
+### v1.5.0 - 5th March 2026
+
+- Feature - Add a suspect-term cleanup tool in `Settings > Taxonomies` to identify and remove likely erroneous numeric terms created by a previous bug
+- Feature - Add `runthings_ttc_cleanup_capability` and `runthings_ttc_cleanup_taxonomies` filters for cleanup tool permissions and scope overrides
+- Fix - Prevent accidental creation of numeric term names in the classic integration path
+
+
 ### v1.4.0 - 22nd February 2026
 
 - Feature - Add optional inline term creation controls in both Classic and Gutenberg editors
@@ -136,6 +143,23 @@ add_filter( 'runthings_ttc_search_settings', function( $search_settings ) {
 #### Parameters:
 
 - **`$search_settings`** (array): A map of taxonomy slugs to search config arrays (`mode`, `threshold`).
+
+### runthings_ttc_cleanup_capability
+
+This filter allows developers to override the required capability for accessing cleanup notices and actions.
+
+#### Parameters:
+
+- **`$capability`** (string): Required capability slug. Default: `manage_options`.
+
+### runthings_ttc_cleanup_taxonomies
+
+This filter allows developers to override which taxonomies are scanned by the cleanup tool.
+
+#### Parameters:
+
+- **`$taxonomies`** (array): Array of taxonomy slugs to scan.
+- **`$config`** (`RunthingsTaxonomyTagsToCheckboxes\Config`): Plugin config instance.
 
 ## Additional Notes
 
