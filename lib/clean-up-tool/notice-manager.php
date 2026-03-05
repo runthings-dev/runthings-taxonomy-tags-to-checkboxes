@@ -97,19 +97,21 @@ class Cleanup_Notice_Manager {
             self::DISMISS_NONCE_ACTION
         );
 
+        $plugin_label = '<strong>' . esc_html__( 'Taxonomy Tags to Checkboxes', 'runthings-taxonomy-tags-to-checkboxes' ) . '</strong>';
         $message = sprintf(
-            /* translators: %d: number of suspect terms. */
+            /* translators: 1: plugin label, 2: number of suspect terms. */
             _n(
-                'Taxonomy Tags to Checkboxes found %d suspect numeric term that may have been created by a previous bug.',
-                'Taxonomy Tags to Checkboxes found %d suspect numeric terms that may have been created by a previous bug.',
+                '%1$s: Found %2$d suspect numeric term that may have been created by a previous bug.',
+                '%1$s: Found %2$d suspect numeric terms that may have been created by a previous bug.',
                 $candidate_total,
                 'runthings-taxonomy-tags-to-checkboxes'
             ),
+            $plugin_label,
             $candidate_total
         );
 
         echo '<div class="notice notice-warning">';
-        echo '<p>' . esc_html( $message ) . ' ';
+        echo '<p>' . wp_kses( $message, [ 'strong' => [] ] ) . ' ';
         echo '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Review candidates', 'runthings-taxonomy-tags-to-checkboxes' ) . '</a>';
         echo ' | ';
         echo '<a href="' . esc_url( $dismiss_url ) . '">' . esc_html__( 'Dismiss this notice', 'runthings-taxonomy-tags-to-checkboxes' ) . '</a>';
