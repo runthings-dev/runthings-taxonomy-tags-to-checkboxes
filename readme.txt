@@ -3,7 +3,7 @@ Contributors: runthingsdev
 Tags: taxonomy, checkboxes, tags, UI, admin
 Requires at least: 6.4
 Tested up to: 7.1
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -52,6 +52,9 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 2. Taxonomy settings screen
 
 == Changelog ==
+
+= 1.5.1 - 16th November 2026 =
+* Update WordPress tested-up-to metadata to 7.1.
 
 = 1.5.0 - 5th March 2026 =
 * Feature - Add a suspect-term cleanup tool in Settings > Taxonomies to identify and remove likely erroneous numeric terms created by a previous bug
@@ -109,14 +112,14 @@ This filter allows developers to override per-taxonomy search UI behavior.
 
 == Upgrade Notice ==
 
+= 1.5.1 =
+Updates WordPress tested-up-to metadata to 7.1.
+
 = 1.5.0 =
 Fixes term creation edge cases in classic taxonomy metaboxes and a cleanup tool to fix affected sites
 
 = 1.4.0 =
 Adds optional inline term creation and taxonomy search panel controls.
-
-= 1.3.0 =
-Adds Gutenberg support for taxonomy meta boxes.
 
 == License ==
 

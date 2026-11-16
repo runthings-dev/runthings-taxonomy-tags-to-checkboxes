@@ -58,6 +58,10 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 ## Changelog
 
+### v1.5.1 - 16th November 2026
+
+- Update WordPress tested-up-to metadata to 7.1.
+
 ### v1.5.0 - 5th March 2026
 
 - Feature - Add a suspect-term cleanup tool in `Settings > Taxonomies` to identify and remove likely erroneous numeric terms created by a previous bug
