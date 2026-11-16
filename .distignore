@@ -1,18 +1,24 @@
 # Ignore development files
+.wordpress-org/
+.runthings/
 .git/
 .github/
-.wordpress-org/
+.gitignore
 node_modules/
 tests/
-dist/
+/dist/
 src/
+build/
+*.zip
 .distignore
-.gitignore
+.gitattributes
+BUILD.md
 build.md
 
 # Ignore configuration files
 .editorconfig
 .prettier.js
+.prettierrc.js
 *.yml
 *.lock
 package.json

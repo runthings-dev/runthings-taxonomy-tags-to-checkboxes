@@ -16,6 +16,7 @@ jobs:
   deploy:
     uses: runthings-dev/.github/.github/workflows/wporg-svn-deploy.yml@v1
     with:
+      npm_build: true
       ref: ${{ inputs.ref || github.ref }}
     secrets:
       WPORG_USERNAME: ${{ secrets.WPORG_USERNAME }}

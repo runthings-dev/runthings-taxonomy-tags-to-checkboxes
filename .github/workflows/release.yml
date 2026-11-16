@@ -13,3 +13,5 @@ permissions:
 jobs:
   release:
     uses: runthings-dev/.github/.github/workflows/plugin-release.yml@v1
+    with:
+      npm_build: true

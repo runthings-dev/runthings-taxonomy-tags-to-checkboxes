@@ -28,7 +28,7 @@ class Block_Integration {
             return;
         }
 
-        $asset_file = RUNTHINGS_TTC_DIR . 'build/index.asset.php';
+        $asset_file = RUNTHINGS_TTC_DIR . 'assets/dist/index.asset.php';
         if ( ! file_exists( $asset_file ) ) {
             return;
         }
@@ -37,7 +37,7 @@ class Block_Integration {
 
         wp_enqueue_script(
             'runthings-ttc-editor',
-            RUNTHINGS_TTC_URL . 'build/index.js',
+            RUNTHINGS_TTC_URL . 'assets/dist/index.js',
             $asset['dependencies'],
             $asset['version'],
             true

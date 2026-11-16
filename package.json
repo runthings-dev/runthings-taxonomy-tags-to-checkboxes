@@ -3,8 +3,8 @@
   "version": "1.5.0",
   "description": "Convert taxonomy tags to checkboxes in the WordPress admin",
   "scripts": {
-    "build": "wp-scripts build",
-    "start": "wp-scripts start",
+    "build": "wp-scripts build --output-path=assets/dist",
+    "start": "wp-scripts start --output-path=assets/dist",
     "check-engines": "wp-scripts check-engines",
     "check-licenses": "wp-scripts check-licenses",
     "lint:js": "wp-scripts lint-js"
