@@ -2,7 +2,7 @@
 Contributors: runthingsdev
 Tags: taxonomy, checkboxes, tags, UI, admin
 Requires at least: 6.4
-Tested up to: 7.1
+Tested up to: 7.2
 Stable tag: 1.5.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
