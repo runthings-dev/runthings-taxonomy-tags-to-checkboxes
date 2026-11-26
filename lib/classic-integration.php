@@ -49,11 +49,12 @@ class Classic_Integration {
     public function register_inline_create_ajax_hooks() {
         foreach ( $this->config->get_inline_add_taxonomies() as $taxonomy ) {
             $taxonomy_object = get_taxonomy( $taxonomy );
-            if ( ! $taxonomy_object ) {
+            if ( ! $taxonomy_object || $taxonomy_object->hierarchical ) {
                 continue;
             }
 
-            add_action( 'wp_ajax_add-' . $taxonomy, [ $this, 'handle_inline_create_ajax' ] );
+            // Run before core sends a checklist with tax_input values that it reads as term names.
+            add_action( 'wp_ajax_add-' . $taxonomy, [ $this, 'handle_inline_create_ajax' ], 9 );
         }
     }
 
