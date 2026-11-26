@@ -58,6 +58,11 @@ You can post ideas or contribute to the project over at the GitHub repository, w
 
 ## Changelog
 
+### v1.5.2 - 26th November 2026
+
+- Fixed an issue where adding terms inline in the Classic Editor could create unintended numeric terms.
+- Updated the WordPress tested-up-to metadata to 7.2.
+
 ### v1.5.1 - 16th November 2026
 
 - Update WordPress tested-up-to metadata to 7.1.

@@ -1,6 +1,6 @@
 {
   "name": "runthings-taxonomy-tags-to-checkboxes",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Convert taxonomy tags to checkboxes in the WordPress admin",
   "scripts": {
     "build": "wp-scripts build --output-path=assets/dist",
